@@ -1,0 +1,896 @@
+type: custom:auto-entities
+unique: true
+show_empty: false
+card:
+  type: custom:layout-card
+  layout_type: masonry
+card_param: cards
+filter:
+  template: |
+    {%- set entities = integration_entities('bambu_lab') -%}
+    {%- set entries = integration_entities('bambu_lab')
+                        | map('config_entry_id')
+                        | map('config_entry_attr', 'title') | list -%}
+    {%- set devices = integration_entities('bambu_lab')
+                        | map('device_id')
+                        | list -%}
+    {%- set zip_list = zip(entities, entries, devices) | list -%}
+    {%- for e in entries | unique | list -%}
+      {%- set printer_switch_entity = states.switch
+                                      | selectattr('entity_id', 'in', label_entities('3d-printer'))
+                                      | selectattr('entity_id', 'in', label_entities(e))
+                                      | map(attribute='entity_id')
+                                      | list | default([''], true)
+                                      | first -%}
+      {%- for d in devices | unique | sort | list  -%}
+        {%- set print_status_entity = zip_list
+                                      | selectattr(1, 'eq', e)
+                                      | selectattr(0, 'search', '_print_status')
+                                      | map(attribute=0)
+                                      | expand 
+                                      | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
+                                      | map(attribute='entity_id')
+                                      | list | default([''], true)
+                                      | first -%}
+        {%- set print_status = states(print_status_entity) -%}
+        {%- set device_model = device_attr(d, 'model') -%}
+        {%- if device_model == 'External Spool'
+                and print_status not in ['offline','unavailable', 'unknown', None] -%}
+          {%- set external_spool_entity = zip_list
+                                            | selectattr(2, 'eq', d)
+                                            | selectattr(1, 'eq', e)
+                                            | selectattr(0, 'search', '_external_spool')
+                                            | map(attribute=0)
+                                            | expand 
+                                            | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
+                                            | map(attribute='entity_id') 
+                                            | list | default([''], true)
+                                            | first -%}
+          {%- if external_spool_entity != '' -%}
+            {{- { 'type': 'picture-elements',
+                  'elements': [
+                    { 'type': 'custom:config-template-card',
+                      'entities': [external_spool_entity],
+                      'element': 
+                        { 'type': 'state-icon',
+                          'entity': external_spool_entity,
+                          'icon': ('fapro:filament-1' if states(external_spool_entity) == 'empty' else 'mdi:tray')
+                          },
+                      'style': {
+                        'top': '50%',
+                        'left': '50%',
+                        'transform': 'translate(-50%, -50%) scale(200%)',
+                        '--paper-item-icon-color': 'var(--tray_vt_color)',
+                        'background-color': 'rgba(0,0,0,0.5)',
+                        'box-shadow': '0 0 5px 5px var(--tray_vt_bg)',
+                        'border-radius': '50px',
+                        '--mdc-icon-size': '1.8em'
+                      }
+                    },
+                    { 'type': 'state-label',
+                      'entity': external_spool_entity,
+                      'attribute': 'type',
+                      'tap_action': { 'action': 'none' },
+                      'style': {
+                        'top': '50%',
+                        'left': '85%',
+                        'text-align': 'center',
+                        'font-size': '1em',
+                        'background-color': 'rgba(0,0,0,0.4)',
+                        'box-shadow': '0 0 5px 5px rgba(0, 0, 0, 0.4)',
+                        'border-radius': '50px',
+                        'pointer-events': 'none',
+                        'color': '#FFFFFF'
+                      }
+                    }],
+                  'image': '/local/media/bambuprinter/spool.png',
+                  'card_mod': {
+                    'style': 'ha-card { margin-left: auto; margin-right: auto; width: 60%; height: 60%; background: none !important; border: none !important; box-shadow: none !important; --tray_vt_color:  ' +
+                    + state_attr(external_spool_entity, 'attributes.color') | default('rgba(0,0,0,0.5)', true) + '; --tray_vt_bg: ' + ('rgba(255, 255, 126, 0.5);' if external_spool_entity | map(attribute='attributes.active') | select('eq', true) | list | count > 0 else 'rgba(0,0,0,0.5);') + '}'
+                  }
+                } -}},
+          {%- endif -%}
+        {%- endif -%}
+        {%- if device_model == 'AMS' -%}
+          {%- set element_list = namespace(e=[]) -%}
+          {%- set id_entity = zip_list
+                              | selectattr(2, 'eq', d)
+                              | selectattr(1, 'eq', e)
+                              | selectattr(0, 'search', '_ams_id')
+                              | map(attribute=0)
+                              | expand 
+                              | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
+                              | map(attribute='entity_id') 
+                              | list | default([''], true)
+                              | first -%}
+          {%- if id_entity != '' -%}
+            {%- set element_list.e = element_list.e + [
+                {'type': 'state-label',
+                 'entity': id_entity,
+                 'tap_action': {'action': 'none' },
+                 'style': {
+                   'top': '77%',
+                   'left': '9.6%',
+                   'text-align': 'center',
+                   'font-size': '0.8em',
+                   'background-color': 'rgba(0,0,0,0)',
+                   'box-shadow': '0 0 3px 3px rgba(0, 0, 0, 0)',
+                   'border-radius': '10px',
+                   'pointer-events': 'none',
+                   'color': '#FFFFFF'
+                   } 
+                } ] -%}
+          {%- endif -%}
+          {%- set tray_1_entity = zip_list
+                                  | selectattr(2, 'eq', d)
+                                  | selectattr(1, 'eq', e)
+                                  | selectattr(0, 'search', '_ams_tray_1')
+                                  | map(attribute=0)
+                                  | expand 
+                                  | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
+                                  | map(attribute='entity_id') 
+                                  | list | default([''], true)
+                                  | first -%}
+          {%- if tray_1_entity != '' -%}
+            {%- set element_list.e = element_list.e + [
+                {'type': 'custom:config-template-card',
+                 'entities': [tray_1_entity],
+                 'element': { 'type': 'state-icon',
+                              'entity': tray_1_entity,
+                              'icon': 'fapro:filament-1' if states(tray_1_entity) != 'empty' else 'mdi:tray' 
+                            },
+                 'style': {
+                   'top': '28%',
+                   'left': '21.4%',
+                    '--paper-item-icon-color': 'var(--tray_1_color)',
+                    'background-color': 'rgba(0,0,0,0.5)',
+                    'box-shadow': '0 0 5px 5px var(--tray_1_bg)',
+                    'border-radius': '50px',
+                    '--mdc-icon-size': '2.4em'
+                   } 
+                } ] -%}
+            {%- set element_list.e = element_list.e + [
+                {'type': 'state-label',
+                 'entity': tray_1_entity,
+                 'tap_action': {'action': 'none' },
+                 'attribute': 'type',
+                 'style': {
+                   'top': '77%',
+                   'left': '21%',
+                   'text-align': 'center',
+                   'font-size': '1em',
+                   'background-color': 'rgba(0,0,0,0.4)',
+                   'box-shadow': '0 0 5px 5px rgba(0, 0, 0, 0.4)',
+                   'border-radius': '50px',
+                   'pointer-events': 'none',
+                   'color': '#FFFFFF',
+                   } 
+                } ] -%}
+          {%- endif -%}
+          {%- set tray_2_entity = zip_list
+                                  | selectattr(2, 'eq', d)
+                                  | selectattr(1, 'eq', e)
+                                  | selectattr(0, 'search', '_ams_tray_2')
+                                  | map(attribute=0)
+                                  | expand 
+                                  | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
+                                  | map(attribute='entity_id') 
+                                  | list | default([''], true)
+                                  | first -%}
+            {%- if tray_2_entity != '' -%}
+            {%- set element_list.e = element_list.e + [
+                {'type': 'custom:config-template-card',
+                 'entities': [tray_2_entity],
+                 'element': { 'type': 'state-icon',
+                              'entity': tray_2_entity,
+                              'icon': 'fapro:filament-1' if states(tray_2_entity) != 'empty' else 'mdi:tray' 
+                            },
+                 'style': {
+                   'top': '28%',
+                   'left': '39.7%',
+                    '--paper-item-icon-color': 'var(--tray_2_color)',
+                    'background-color': 'rgba(0,0,0,0.5)',
+                    'box-shadow': '0 0 5px 5px var(--tray_2_bg)',
+                    'border-radius': '50px',
+                    '--mdc-icon-size': '2.4em'
+                   } 
+                } ] -%}
+            {%- set element_list.e = element_list.e + [
+                {'type': 'state-label',
+                 'entity': tray_2_entity,
+                 'attribute': 'type',
+                 'tap_action': {'action': 'none' },
+                 'style': {
+                   'top': '77%',
+                   'left': '40.4%',
+                   'text-align': 'center',
+                   'font-size': '1em',
+                   'background-color': 'rgba(0,0,0,0.4)',
+                   'box-shadow': '0 0 5px 5px rgba(0, 0, 0, 0.4)',
+                   'border-radius': '50px',
+                   'pointer-events': 'none',
+                   'color': '#FFFFFF',
+                   } 
+                } ] -%}
+          {%- endif -%}
+          {%- set tray_3_entity = zip_list
+                                  | selectattr(2, 'eq', d)
+                                  | selectattr(1, 'eq', e)
+                                  | selectattr(0, 'search', '_ams_tray_3')
+                                  | map(attribute=0)
+                                  | expand 
+                                  | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
+                                  | map(attribute='entity_id') 
+                                  | list | default([''], true)
+                                  | first -%}
+            {%- if tray_3_entity != '' -%}
+            {%- set element_list.e = element_list.e + [
+                {'type': 'custom:config-template-card',
+                 'entities': [tray_3_entity],
+                 'element': { 'type': 'state-icon',
+                              'entity': tray_3_entity,
+                              'icon': 'fapro:filament-1' if states(tray_3_entity) != 'empty' else 'mdi:tray' 
+                            },
+                 'style': {
+                   'top': '28%',
+                   'left': '59.7%',
+                    '--paper-item-icon-color': 'var(--tray_3_color)',
+                    'background-color': 'rgba(0,0,0,0.5)',
+                    'box-shadow': '0 0 5px 5px var(--tray_3_bg)',
+                    'border-radius': '50px',
+                    '--mdc-icon-size': '2.4em'
+                   } 
+                } ] -%}
+            {%- set element_list.e = element_list.e + [
+                {'type': 'state-label',
+                 'entity': tray_3_entity,
+                 'attribute': 'type',
+                 'tap_action': {'action': 'none' },
+                 'style': {
+                   'top': '77%',
+                   'left': '60%',
+                   'text-align': 'center',
+                   'font-size': '1em',
+                   'background-color': 'rgba(0,0,0,0.4)',
+                   'box-shadow': '0 0 5px 5px rgba(0, 0, 0, 0.4)',
+                   'border-radius': '50px',
+                   'pointer-events': 'none',
+                   'color': '#FFFFFF',
+                   } 
+                } ] -%}
+          {%- endif -%}
+          {%- set tray_4_entity = zip_list
+                                  | selectattr(2, 'eq', d)
+                                  | selectattr(1, 'eq', e)
+                                  | selectattr(0, 'search', '_ams_tray_4')
+                                  | map(attribute=0)
+                                  | expand 
+                                  | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
+                                  | map(attribute='entity_id') 
+                                  | list | default([''], true)
+                                  | first -%}
+            {%- if tray_4_entity != '' -%}
+            {%- set element_list.e = element_list.e + [
+                {'type': 'custom:config-template-card',
+                 'entities': [tray_4_entity],
+                 'element': { 'type': 'state-icon',
+                              'entity': tray_4_entity,
+                              'icon': 'fapro:filament-1' if states(tray_4_entity) != 'empty' else 'mdi:tray' 
+                            },
+                 'style': {
+                   'top': '28%',
+                   'left': '79.6%',
+                    '--paper-item-icon-color': 'var(--tray_4_color)',
+                    'background-color': 'rgba(0,0,0,0.5)',
+                    'box-shadow': '0 0 5px 5px var(--tray_4_bg)',
+                    'border-radius': '50px',
+                    '--mdc-icon-size': '2.4em'
+                   } 
+                } ] -%}
+            {%- set element_list.e = element_list.e + [
+                {'type': 'state-label',
+                 'entity': tray_4_entity,
+                 'attribute': 'type',
+                 'tap_action': {'action': 'none' },
+                 'style': {
+                   'top': '77%',
+                   'left': '79.6%',
+                   'text-align': 'center',
+                   'font-size': '1em',
+                   'background-color': 'rgba(0,0,0,0.4)',
+                   'box-shadow': '0 0 5px 5px rgba(0, 0, 0, 0.4)',
+                   'border-radius': '50px',
+                   'pointer-events': 'none',
+                   'color': '#FFFFFF',
+                   } 
+                } ] -%}
+          {%- endif -%}        
+          {%- if print_status_entity  != '' -%}
+            {%- set element_list.e = element_list.e + [
+              { 'entity': print_status_entity,
+                'type': 'state-badge',
+                'style': {
+                  'top': '50.75%',
+                  'left': '8%',
+                  'font-size': '0.75em',
+                  'color': 'rgba(0,0,0,0)'
+                   }
+              } ] -%}
+          {%- endif -%}
+          {%- set humidity_entity = zip_list
+                                      | selectattr(2, 'eq', d)
+                                      | selectattr(1, 'eq', e)
+                                      | selectattr(0, 'search', '_ams_humidity_index')
+                                      | map(attribute=0)
+                                      | expand 
+                                      | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
+                                      | map(attribute='entity_id') 
+                                      | list | default([''], true)
+                                      | first -%}
+          {%- if humidity_entity != '' -%}
+            {%- set element_list.e = element_list.e + [
+              { 'entities': [humidity_entity],
+                'type': 'custom:config-template-card',
+                'style': {
+                  'top': '38.5%',
+                  'left': '92.5%',
+                  'background-color': '#1c1c1c',
+                  'border-radius': '50px',
+                  'border': '0.12em solid var(--humidity-border-color)',
+                  '--mdc-icon-size': '2.05em'
+                   },   
+                'element': {
+                  'type': 'state-icon',
+                  'entity': humidity_entity,
+                  'icon:': 'fapro:humidity-level-dark-' + states(humidity_entity)
+                }            
+              } ] -%}
+          {%- endif -%}
+          {{- { 'type': 'picture-elements',
+               'image': '/local/media/bambuprinter/AMS_2.png',
+               'card_mod': {
+                  'style': 'ha-card { background: none !important; border: none !important; box-shadow: none !important; --humidity-border-color: -' + 
+                  ( 'rgba(255, 255, 126, 0.5);' if states(humidity_entity) | int(0) > 3 else 'rgba(228,127,97,1.0);' if states(humidity_entity) | int(0) > 1 else 'rgba(194,74,72,1.0);' ) + 
+                  ' --tray_1_color: ' + ('rgb(255, 255, 255)' if is_state_attr(tray_1_entity, 'color', '#00000000') else state_attr(tray_1_entity, 'color')) + 
+                  '; --tray_2_color: ' + ('rgb(255, 255, 255)' if is_state_attr(tray_2_entity, 'color', '#00000000') else state_attr(tray_2_entity, 'color')) + 
+                  '; --tray_3_color: ' + ('rgb(255, 255, 255)' if is_state_attr(tray_3_entity, 'color', '#00000000') else state_attr(tray_3_entity, 'color')) + 
+                  '; --tray_4_color: ' + ('rgb(255, 255, 255)' if is_state_attr(tray_4_entity, 'color', '#00000000') else state_attr(tray_4_entity, 'color')) + 
+                  '; --tray_1_bg: ' + ('rgba(255, 255, 126, 0.5)' if is_state_attr(tray_1_entity, 'active', true) else 'rgba(0,0,0,0.5)') + 
+                  '; --tray_2_bg: ' + ('rgba(255, 255, 126, 0.5)' if is_state_attr(tray_2_entity, 'active', true) else 'rgba(0,0,0,0.5)') + 
+                  '; --tray_3_bg: ' + ('rgba(255, 255, 126, 0.5)' if is_state_attr(tray_3_entity, 'active', true) else 'rgba(0,0,0,0.5)') + 
+                  '; --tray_4_bg: ' + ('rgba(255, 255, 126, 0.5);' if is_state_attr(tray_4_entity, 'active', true) else 'rgba(0,0,0,0.5);') + '}'
+                },
+              'elements': element_list.e } -}},
+        {%- endif -%}
+        {%- if device_model in ['A1MINI', 'A1', 'P1P', 'P1S', 'X1E', 'X1C', 'X1'] -%}
+          {%- set element_list = namespace(e=[]) -%}
+          {%- set speed_select_entity = zip_list
+                                        | selectattr(2, 'eq', d)
+                                        | selectattr(1, 'eq', e)
+                                        | selectattr(0, 'search', '_printing_speed')
+                                        | map(attribute=0)
+                                        | expand 
+                                        | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
+                                        | selectattr('domain', 'eq', 'select')
+                                        | map(attribute='entity_id')
+                                        | list | default([''], true)
+                                        | first -%}
+          {%- set pause_button_entity = zip_list
+                                        | selectattr(2, 'eq', d)
+                                        | selectattr(1, 'eq', e)
+                                        | selectattr(0, 'search', '_pause_printing')
+                                        | map(attribute=0)
+                                        | expand 
+                                        | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
+                                        | selectattr('domain', 'eq', 'button')
+                                        | map(attribute='entity_id')
+                                        | list | default([''], true)
+                                        | first -%}
+          {%- set resume_button_entity = zip_list
+                                        | selectattr(2, 'eq', d)
+                                        | selectattr(1, 'eq', e)
+                                        | selectattr(0, 'search', '_resume_printing')
+                                        | map(attribute=0)
+                                        | expand 
+                                        | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
+                                        | selectattr('domain', 'eq', 'button')
+                                        | map(attribute='entity_id')
+                                        | list | default([''], true)
+                                        | first -%}
+          {%- set stop_button_entity = zip_list
+                                        | selectattr(2, 'eq', d)
+                                        | selectattr(1, 'eq', e)
+                                        | selectattr(0, 'search', '_stop_printing')
+                                        | map(attribute=0)
+                                        | expand 
+                                        | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
+                                        | selectattr('domain', 'eq', 'button')
+                                        | map(attribute='entity_id')
+                                        | list | default([''], true)
+                                        | first -%}
+          {%- set image_entity = zip_list
+                                  | selectattr(2, 'eq', d)
+                                  | selectattr(1, 'eq', e)
+                                  | selectattr(0, 'search', '_cover_image')
+                                  | map(attribute=0)
+                                  | expand 
+                                  | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
+                                  | selectattr('domain', 'eq', 'image')
+                                  | map(attribute='entity_id')
+                                  | list | default([''], true)
+                                  | first -%}
+          {%- set camera_entity = zip_list
+                                  | selectattr(2, 'eq', d)
+                                  | selectattr(1, 'eq', e)
+                                  | selectattr(0, 'search', '_camera')
+                                  | map(attribute=0)
+                                  | expand 
+                                  | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
+                                  | selectattr('domain', 'eq', 'camera')
+                                  | map(attribute='entity_id')
+                                  | list | default([''], true)
+                                  | first -%}
+          {%- set print_progress_entity = zip_list
+                                          | selectattr(2, 'eq', d)
+                                          | selectattr(1, 'eq', e)
+                                          | selectattr(0, 'search', '_print_progress')
+                                          | map(attribute=0)
+                                          | expand 
+                                          | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
+                                          | map(attribute='entity_id')
+                                          | list | default([''], true)
+                                          | first -%}
+          {%- set nozzle_temperature_entity = zip_list
+                                          | selectattr(2, 'eq', d)
+                                          | selectattr(1, 'eq', e)
+                                          | selectattr(0, 'search', '_nozzle_temperature')
+                                          | map(attribute=0)
+                                          | expand 
+                                          | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
+                                          | map(attribute='entity_id')
+                                          | list | default([''], true)
+                                          | first -%}
+          {%- set chamber_temperature_entity = zip_list
+                                          | selectattr(2, 'eq', d)
+                                          | selectattr(1, 'eq', e)
+                                          | selectattr(0, 'search', '_chamber_temperature')
+                                          | map(attribute=0)
+                                          | expand 
+                                          | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
+                                          | map(attribute='entity_id')
+                                          | list | default([''], true)
+                                          | first -%}
+          {%- set wifi_signal_entity = zip_list
+                                        | selectattr(2, 'eq', d)
+                                        | selectattr(1, 'eq', e)
+                                        | selectattr(0, 'search', '_wi_fi_signal')
+                                        | map(attribute=0)
+                                        | expand 
+                                        | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
+                                        | map(attribute='entity_id')
+                                        | list | default([''], true)
+                                        | first -%}
+          {%- set chamber_light_entity = zip_list
+                                          | selectattr(2, 'eq', d)
+                                          | selectattr(1, 'eq', e)
+                                          | selectattr(0, 'search', '_chamber_light')
+                                          | map(attribute=0)
+                                          | expand 
+                                          | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
+                                          | map(attribute='entity_id')
+                                          | list | default([''], true)
+                                          | first -%}
+          {%- if printer_switch_entity != '' -%}
+              {%- set dev_name = device_attr(d, 'name_by_user') | default(device_attr(d, 'name'), true) -%}
+              {%- set on_translation = [dev_name, "component.switch.entity_component._.name", "component.switch.entity_component._.state.on"] 
+                                        | map('ct_translated')
+                                        | join(' ')
+                                        | lower | capitalize -%}
+              {%- set off_translation = [dev_name, "component.switch.entity_component._.name", "component.switch.entity_component._.state.off"] 
+                                        | map('ct_translated')
+                                        | join(' ')
+                                        | lower | capitalize -%}              
+              {%- set element_list.e = element_list.e + [
+                  { 'type':'custom:button-card',
+                    'entity': printer_switch_entity,
+                    'name': dev_name,
+                    'icon': 'mdi:printer-3d',
+                    'show_name': false,
+                    'color_type': 'card',
+                    'style': {
+                      'top': '14%',
+                      'left': '80%'
+                      },
+                    'styles': {
+                      'card': [
+                        { 'height': '20px' },
+                        { 'width': '20pX'}
+                        ],
+                      'icon': [
+                        { 'height': '20px' },
+                        { 'width': '20pX'}
+                        ]
+                    },
+                    'tap_action': {
+                      'action': '[[[ if (entity) return "toggle"; else return "none"; ]]]'
+                      },
+                    'confirmation': {
+                      'text': (on_translation if printer_switch_entity | map('states') | select('eq', 'off') | list | count > 0 else off_translation)
+                      },
+                    'state': [
+                      { 'value': 'on',
+                        'icon': 'mdi:power',
+                        'color': 'green'
+                      },
+                      { 'value': 'off',
+                        'icon': 'mdi:power',
+                        'color': 'grey'
+                      } ]
+                  } ] -%}
+          {%- endif -%}
+          {%- if print_status != 'offline'
+                 and speed_select_entity != '' -%}
+            {%- set element_list.e = element_list.e + [
+                  { 'type':'custom:button-card',
+                    'show_name': false,
+                    'entity': speed_select_entity,
+                    'icon': 'mdi:speedometer-slow',
+                    'color_type': 'card',
+                    'style': {
+                      'top': '93%',
+                      'left': '65%'
+                      },
+                    'styles': {
+                      'card': [
+                        { 'height': '20px' },
+                        { 'width': '20pX'}
+                        ],
+                      'icon': [
+                        { 'height': '20px' },
+                        { 'width': '20pX'}
+                        ]
+                    },
+                    'tap_action': {
+                      'action': 'call-service',
+                      'service': 'select.select_option',
+                      'data': { 'option': 'silent' },
+                      'target': { 'entity_id': speed_select_entity }
+                       },
+                    'card_mod': {
+                      'style': 'ha-card { box-shadow: none !important; background-color: rgba(0,0,0,0); border: none; --pbs-button-color: ' + 
+                      ('yellow;' if is_state(speed_select_entity, 'silent') else 'grey;') +
+                      ' --paper-item-icon-color: ' + 
+                      ('yellow;' if is_state(speed_select_entity, 'silent') else 'grey;')
+                      } } ] -%}
+            {%- set element_list.e = element_list.e + [
+                  { 'type':'custom:button-card',
+                    'show_name': false,
+                    'entity': speed_select_entity,
+                    'name': 'Standard',
+                    'icon': 'mdi:speedometer-medium',
+                    'show_name': false,
+                    'color_type': 'card',
+                    'style': {
+                      'top': '93%',
+                      'left': '71%'
+                      },
+                    'styles': {
+                      'card': [
+                        { 'height': '20px' },
+                        { 'width': '20pX'}
+                        ],
+                      'icon': [
+                        { 'height': '20px' },
+                        { 'width': '20pX'}
+                        ]
+                    },
+                    'tap_action': {
+                      'action': 'call-service',
+                      'service': 'select.select_option',
+                      'data': { 'option': 'standard' },
+                      'target': { 'entity_id': speed_select_entity }
+                       },
+                    'card_mod': {
+                      'style': 'ha-card { box-shadow: none !important; background-color: rgba(0,0,0,0); border: none; --paper-item-icon-color: ' + 
+                      ('yellow;' if is_state(speed_select_entity, 'standard') else 'grey;')
+                      } } ] -%}
+            {%- set element_list.e = element_list.e + [
+                  { 'type':'custom:button-card',
+                    'show_name': false,
+                    'entity': speed_select_entity,
+                    'icon': 'mdi:speedometer',
+                    'color_type': 'card',
+                    'style': {
+                      'top': '93%',
+                      'left': '77%'
+                      },
+                    'styles': {
+                      'card': [
+                        { 'height': '20px' },
+                        { 'width': '20pX'}
+                        ],
+                      'icon': [
+                        { 'height': '20px' },
+                        { 'width': '20pX'}
+                        ]
+                    },
+                    'tap_action': {
+                      'action': 'call-service',
+                      'service': 'select.select_option',
+                      'data': { 'option': 'sport' },
+                      'target': { 'entity_id': speed_select_entity }
+                       },
+                    'card_mod': {
+                      'style': 'ha-card { box-shadow: none !important; background-color: rgba(0,0,0,0); border: none; --paper-item-icon-color: ' + 
+                      ('yellow;' if is_state(speed_select_entity, 'sport') else 'grey;')
+                      } } ] -%}
+            {%- set element_list.e = element_list.e + [
+                  { 'type':'custom:button-card',
+                    'show_name': false,
+                    'entity': speed_select_entity,
+                    'icon': 'mdi:car-speed-limiter',
+                    'color_type': 'card',
+                    'style': {
+                      'top': '93%',
+                      'left': '83%'
+                      },
+                    'styles': {
+                      'card': [
+                        { 'height': '20px' },
+                        { 'width': '20pX'}
+                        ],
+                      'icon': [
+                        { 'height': '20px' },
+                        { 'width': '20pX'}
+                        ]
+                    },
+                    'tap_action': {
+                      'action': 'call-service',
+                      'service': 'select.select_option',
+                      'data': { 'option': 'ludicrous' },
+                      'target': { 'entity_id': speed_select_entity }
+                       },
+                    'card_mod': {
+                      'style': 'ha-card { box-shadow: none !important; background-color: rgba(0,0,0,0); border: none; --paper-item-icon-color: ' + 
+                      ('yellow;' if is_state(speed_select_entity, 'ludicrous') else 'grey;')
+                      } } ] -%}
+          {%- endif -%}
+          {%- if print_status not in ['offline', 'unavailable', 'unknown', None] -%}
+            {%- if (pause_button_entity  != ''  
+                        or resume_button_entity  != '') -%}
+              {%- set element_list.e = element_list.e + [
+                    { 'type':'custom:button-card',
+                      'show_name': false,
+                      'entity': print_status_entity,
+                      'icon': ("mdi:pause" if print_status == "running" else "mdi:play" if print_status == "pause" else "mdi:void"),
+                      'color': ("orange" if print_status in ["running", "pause"] else "grey"),
+                      'color_type': 'card',
+                      'style': {
+                        'top': '14%',
+                        'left': '75%'
+                        },
+                      'styles': {
+                        'card': [
+                          { 'height': '20px' },
+                          { 'width': '20pX'}
+                          ],
+                        'icon': [
+                          { 'height': '20px' },
+                          { 'width': '20pX'}
+                          ]
+                        },
+                      'tap_action': {
+                      'action': ("call_service" if print_status in ["running", "pause"] else "none"),
+                      'service': 'button.press',
+                      'service_data': {
+                        'entity_id': (pause_button_entity if print_status == "running" else resume_button_entity if print_status == "pause" else ""),
+                        }
+                      },
+                      'card_mod': {
+                        'style': 'ha-card { box-shadow: none !important; background-color: rgba(0,0,0,0); border: none; --paper-item-icon-color: ' + 
+                            ('orange;' if print_status in ['running', 'pause'] else 'grey;')
+                         }
+                    } ] -%}
+            {%- endif -%}
+            {%- if stop_button_entity != '' -%}
+              {%- set element_list.e = element_list.e + [
+                    { 'type':'custom:button-card',
+                      'show_name': false,
+                      'entity': print_status_entity ,
+                      'confirmation': { 'text': state_attr(stop_button_entity, 'attributes.friendly_name')},
+                      'icon': ("mdi:cancel" if print_status in ["running", "pause"] else "mdi:void"),
+                      'color': ("red" if print_status in ["running", "pause"] else "grey"),
+                      'color_type': 'card',
+                      'style': {
+                        'top': '14%',
+                        'left': '70%'
+                        },
+                      'styles': {
+                        'card': [
+                          { 'height': '20px' },
+                          { 'width': '20pX'}
+                          ],
+                        'icon': [
+                          { 'height': '20px' },
+                          { 'width': '20pX'}
+                          ]
+                        },
+                        'tap_action': {
+                        'action': ("call_service" if print_status in ["running", "pause"] else "none"),
+                        'service': 'button.press',
+                        'service_data': {
+                          'entity_id': stop_button_entity,
+                          }
+                        },
+                      'card_mod': {
+                        'style': 'ha-card { box-shadow: none !important; background-color: rgba(0,0,0,0); border: none; --paper-item-icon-color: ' + 
+                            ('orange;' if print_status in ['running', 'pause'] else 'grey;')
+                         }
+                    } ] -%}
+            {%- endif -%}
+          {%- endif -%}
+          {%- if print_status not in ['offline', 'unavailable', 'unknown', None]
+                  and (camera_entity != ''
+                        or image_entity != '') -%}
+            {%- if device_model in ['A1'] -%}
+              {%- set top, left, scale = '70%', '48%', '88%' -%}
+            {%- elif device_model in ['A1MINI'] -%}
+              {%- set top, left, scale = '67%', '42%', '85%' -%}
+            {%- else -%}
+              {%- set top, left, scale = '50%', '50%', '120%' -%}
+            {%- endif -%}
+            {%- set element_list.e = element_list.e + [{ 
+                'type': 'custom:hui-element',
+                'card_type': 'picture-entity',
+                'show_name': false,
+                'show_state': false,
+                'entity': (camera_entity if camera_entity != '' else image_entity),
+                'style': {
+                  'top': top,
+                  'left': left,
+                  'transform': 'translate(-52%, -50%) scale(' + scale + ',' + scale +'',
+                  '--ha-card-border-width': '0px',
+                  '--ha-card-background': 'none'
+                  }
+                }] -%}
+          {%- endif -%}
+          {%- if device_model in ['P1S'] -%}
+            {%- set top1 = '4.5%' -%}
+            {%- set top2 = '6%' -%}
+            {%- set left = '26.8%' -%}
+          {%- elif device_model in ['P1P'] -%}
+            {%- set top1 = '7.6%' -%}
+            {%- set top2 = '9.6%' -%}
+            {%- set left = '25.3%' -%}
+          {%- elif device_model in ['A1'] -%}
+            {%- set top1 = '80.5%' -%}
+            {%- set top2 = '82.2%' -%}
+            {%- set left = '79%' -%}
+          {%- elif device_model in ['A1MINI'] -%}
+            {%- set top1 = '89%' -%}
+            {%- set top2 = '90%' -%}
+            {%- set left = '74.2%' -%}
+          {%- else -%}
+            {%- set top1 = '6%' -%}
+            {%- set top2 = '8%' -%}
+            {%- set left = '32.8%' -%}
+          {%- endif -%}
+          {%- set element_list.e = element_list.e + [{           
+              'entity': print_status_entity,
+              'type': 'state-label',
+              'style': {
+                'top': top1 if print_status in ['running', 'pause'] else top2,
+                'left': left,
+                'font-size': '1em',
+                'color': '#FFFFFF'
+                } }] -%}
+          {%- if print_progress_entity != ''
+                and print_status in ['running', 'pause'] -%}
+            {%- if device_model in ['P1S'] -%}
+              {%- set top, left = '7.8%', '27.8%' -%}
+            {%- elif device_model in ['P1P'] -%}
+              {%- set top, left = '11%', '26.5%' -%}
+            {%- elif device_model in ['A1'] -%}
+              {%- set top, left = '84.5%', '80%' -%}
+            {%- elif device_model in ['A1MINI'] -%}
+              {%- set top, left = '92%', '75.5%' -%}
+            {%- else -%}
+              {%- set top, left = '10%', '32.8%' -%}
+            {%- endif -%}
+            {%- set element_list.e = element_list.e + [{           
+                  'entity': print_progress_entity,
+                  'type': 'state-label',
+                  'style': {
+                    'top': top,
+                    'left': left,
+                    'font-size': '1.1em',
+                    'color': '#FFFFFF'
+                    } }]  -%}
+          {%- endif -%}
+          {%- if nozzle_temperature_entity != ''
+                and print_status not in ['offline','unavailable', 'unknown', None] -%}
+            {%- set element_list.e = element_list.e + [{ 
+                'entity': nozzle_temperature_entity,
+                'type': 'state-badge',
+                'style': {
+                  'top': '31%',
+                  'left': '51%',
+                  'font-size': '0.8em',
+                  'color': 'rgba(0,0,0,0)'
+                  } }] -%}
+          {%- endif -%}
+          {%- if chamber_temperature_entity != ''
+                and print_status not in ['offline','unavailable', 'unknown', None] -%}
+            {%- set element_list.e = element_list.e + [{ 
+                'entity': chamber_temperature_entity,
+                'type': 'state-badge',
+                'style': {
+                  'top': '31%',
+                  'left': '19%',
+                  'font-size': '0.8em',
+                  'color': 'rgba(0,0,0,0)'
+                  } }] -%}
+          {%- endif -%}
+          {%- if wifi_signal_entity != ''
+                  and print_status not in ['offline','unavailable', 'unknown', None] -%}
+            {%- set wifi_signal = states(wifi_signal_entity) | int(0) -%}
+            {%- set element_list.e = element_list.e + [{
+                'type': 'custom:config-template-card',
+                'entities': [wifi_signal_entity],
+                'element': {
+                  'type': 'state-icon',
+                  'entity': wifi_signal_entity,
+                  'icon': ('mdi:wifi-strength-4' if wifi_signal > -50 else 'mdi:wifi-strength-3' if wifi_signal > -60 else 'mdi:wifi-strength-2' if wifi_signal > -67 else 'mdi:wifi-strength-1' if wifi_signal > -70 else 'mdi:wifi-strength-outline')
+                  },
+                'style': {
+                  'left': '58%',
+                  'top': '8.5%',
+                  'font-size': '0.8em',
+                  'color': 'rgba(0,0,0,0)',
+                  '--paper-item-icon-color': ('green' if wifi_signal > -50 else 'yellow' if wifi_signal > -60 else 'orange' if wifi_signal > -67 else 'red' if wifi_signal > -70 else 'red')
+                  } } ] -%}
+          {%- endif -%}
+          {%- if chamber_light_entity != ''
+                  and print_status not in ['offline','unavailable', 'unknown', None] -%}
+            {%- if device_model in ['A1'] -%}
+              {%- set top, left = '42%', '46.3%' -%}
+            {%- elif device_model in ['A1MINI'] -%}
+              {%- set top, left = '29%', '87%' -%}
+            {%- else -%}
+              {%- set top, left = '46%', '11.2%' -%}
+            {%- endif -%}
+            {%- set element_list.e = element_list.e + [{
+                'type': 'state-icon',
+                'entity': chamber_light_entity,
+                'style': {
+                  'top': top,
+                  'left': left,
+                  },
+                '--mdc-icon-size': '2.6em',
+                'tap_action': {
+                  'action': 'toggle'
+                  } }] -%}
+          {%- endif -%}
+          {%- if device_model in ['X1C', 'X1'] -%}
+            {%- set image = '/local/media/bambuprinter/on_lighton_2.png' if is_state(chamber_light_entity, 'on') else '/local/media/bambuprinter/off.png' -%}
+          {%- elif device_model == 'A1MINI' -%}
+            {%- set image = '/local/media/bambuprinter/a1mini_lighton.png' if is_state(chamber_light_entity, 'on') else '/local/media/bambuprinter/a1mini_lightoff.png' -%}
+          {%- elif device_model == 'A1' -%}
+            {%- set image = '/local/media/bambuprinter/a1_lighton.png' if is_state(chamber_light_entity, 'on') else '/local/media/bambuprinter/a1_lightoff.png' -%}
+          {%- elif device_model == 'P1P' -%}
+            {%- set image = '/local/media/bambuprinter/on_p1p.png' if is_state(chamber_light_entity, 'on') else '/local/media/bambuprinter/off_p1p.png' -%}
+          {%- elif device_model == 'P1S' -%}
+            {%- set image = '/local/media/bambuprinter/on_p1s.png' if is_state(chamber_light_entity, 'on') else '/local/media/bambuprinter/off_p1s.png' -%}
+          {%- elif device_model == 'X1E' -%}
+            {%- set image = '/local/media/bambuprinter/on_x1e.png' if is_state(chamber_light_entity, 'on') else '/local/media/bambuprinter/off_x1e.png' -%}
+          {%- endif -%}
+          {{- { 'type': 'picture-elements',
+               'image': image,
+               'card_mod': {
+                 'style': 'ha-card { background: none !important; border: none !important; box-shadow: none !important;'
+                  },
+               'elements': element_list.e
+              } -}},
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endfor -%}
