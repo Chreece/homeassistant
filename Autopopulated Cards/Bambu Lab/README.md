@@ -20,6 +20,8 @@ Download the necessary cards - integrations:
   FontAwesome (in HACS integrations, not frontend) (after installing via HACS, you need to add it again in Devices & Services)
   custom-ui
   tabbed-card (only if using my NodeRed version)
+
+Download the (media)[https://nightly.link/WolfwithSword/Bambu-HomeAssistant-Flows/workflows/media_archive/main/bambu-ha-media-files.zip] from the page to your /config
 Restart HA
 Insert the yaml code in Lovelace
 Ready!
