@@ -369,9 +369,20 @@ filter:
                                         | selectattr(1, 'eq', e)
                                         | selectattr(0, 'search', '_printing_speed')
                                         | map(attribute=0)
-                                        | expand 
-                                        | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
+                                        | expand
+                                        | rejectattr('state', 'in', ['unavailable', 'unknown', None])
                                         | selectattr('domain', 'eq', 'select')
+                                        | map(attribute='entity_id')
+                                        | list | default([''], true)
+                                        | first -%}
+          {%- set speed_profile_entity = zip_list
+                                        | selectattr(2, 'eq', d)
+                                        | selectattr(1, 'eq', e)
+                                        | selectattr(0, 'search', '_speed_profile')
+                                        | map(attribute=0)
+                                        | expand
+                                        | rejectattr('state', 'in', ['unavailable', 'unknown', None])
+                                        | selectattr('domain', 'eq', 'sensor')
                                         | map(attribute='entity_id')
                                         | list | default([''], true)
                                         | first -%}
@@ -381,7 +392,7 @@ filter:
                                         | selectattr(0, 'search', '_pause_printing')
                                         | map(attribute=0)
                                         | expand 
-                                        | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
+                                        | rejectattr('state', 'in', ['unavailable', None])
                                         | selectattr('domain', 'eq', 'button')
                                         | map(attribute='entity_id')
                                         | list | default([''], true)
@@ -391,8 +402,8 @@ filter:
                                         | selectattr(1, 'eq', e)
                                         | selectattr(0, 'search', '_resume_printing')
                                         | map(attribute=0)
-                                        | expand 
-                                        | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
+                                        | expand
+                                        | rejectattr('state', 'in', ['unavailable', None])
                                         | selectattr('domain', 'eq', 'button')
                                         | map(attribute='entity_id')
                                         | list | default([''], true)
@@ -402,8 +413,8 @@ filter:
                                         | selectattr(1, 'eq', e)
                                         | selectattr(0, 'search', '_stop_printing')
                                         | map(attribute=0)
-                                        | expand 
-                                        | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
+                                        | expand
+                                        | rejectattr('state', 'in', ['unavailable', None])
                                         | selectattr('domain', 'eq', 'button')
                                         | map(attribute='entity_id')
                                         | list | default([''], true)
@@ -460,6 +471,16 @@ filter:
                                           | map(attribute='entity_id')
                                           | list | default([''], true)
                                           | first -%}
+          {%- set bed_temperature_entity = zip_list
+                                          | selectattr(2, 'eq', d)
+                                          | selectattr(1, 'eq', e)
+                                          | selectattr(0, 'search', '_bed_temperature')
+                                          | map(attribute=0)
+                                          | expand 
+                                          | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
+                                          | map(attribute='entity_id')
+                                          | list | default([''], true)
+                                          | first -%}
           {%- set wifi_signal_entity = zip_list
                                         | selectattr(2, 'eq', d)
                                         | selectattr(1, 'eq', e)
@@ -503,12 +524,12 @@ filter:
                       },
                     'styles': {
                       'card': [
-                        { 'height': '20px' },
-                        { 'width': '20pX'}
+                        { 'height': '30px' },
+                        { 'width': '30pX'}
                         ],
                       'icon': [
-                        { 'height': '20px' },
-                        { 'width': '20pX'}
+                        { 'height': '30px' },
+                        { 'width': '30pX'}
                         ]
                     },
                     'tap_action': {
@@ -533,8 +554,9 @@ filter:
             {%- set element_list.e = element_list.e + [
                   { 'type':'custom:button-card',
                     'show_name': false,
-                    'entity': speed_select_entity,
+                    'entity': speed_profile_entity,
                     'icon': 'mdi:speedometer-slow',
+                    'color': 'yellow' if is_state(speed_profile_entity, 'silent') else 'grey',
                     'color_type': 'card',
                     'style': {
                       'top': '93%',
@@ -557,18 +579,15 @@ filter:
                       'target': { 'entity_id': speed_select_entity }
                        },
                     'card_mod': {
-                      'style': 'ha-card { box-shadow: none !important; background-color: rgba(0,0,0,0); border: none; --pbs-button-color: ' + 
-                      ('yellow;' if is_state(speed_select_entity, 'silent') else 'grey;') +
-                      ' --paper-item-icon-color: ' + 
-                      ('yellow;' if is_state(speed_select_entity, 'silent') else 'grey;')
-                      } } ] -%}
+                      'style': 'ha-card { box-shadow: none !important; background-color: rgba(0,0,0,0); border: none;'} } ] -%}
             {%- set element_list.e = element_list.e + [
                   { 'type':'custom:button-card',
                     'show_name': false,
-                    'entity': speed_select_entity,
+                    'entity': speed_profile_entity,
                     'name': 'Standard',
                     'icon': 'mdi:speedometer-medium',
                     'show_name': false,
+                    'color': 'yellow' if is_state(speed_profile_entity, 'standard') else 'grey',
                     'color_type': 'card',
                     'style': {
                       'top': '93%',
@@ -591,14 +610,13 @@ filter:
                       'target': { 'entity_id': speed_select_entity }
                        },
                     'card_mod': {
-                      'style': 'ha-card { box-shadow: none !important; background-color: rgba(0,0,0,0); border: none; --paper-item-icon-color: ' + 
-                      ('yellow;' if is_state(speed_select_entity, 'standard') else 'grey;')
-                      } } ] -%}
+                      'style': 'ha-card { box-shadow: none !important; background-color: rgba(0,0,0,0); border: none;' } } ] -%}
             {%- set element_list.e = element_list.e + [
                   { 'type':'custom:button-card',
                     'show_name': false,
-                    'entity': speed_select_entity,
+                    'entity': speed_profile_entity,
                     'icon': 'mdi:speedometer',
+                    'color': 'yellow' if is_state(speed_profile_entity, 'sport') else 'grey',
                     'color_type': 'card',
                     'style': {
                       'top': '93%',
@@ -621,14 +639,13 @@ filter:
                       'target': { 'entity_id': speed_select_entity }
                        },
                     'card_mod': {
-                      'style': 'ha-card { box-shadow: none !important; background-color: rgba(0,0,0,0); border: none; --paper-item-icon-color: ' + 
-                      ('yellow;' if is_state(speed_select_entity, 'sport') else 'grey;')
-                      } } ] -%}
+                      'style': 'ha-card { box-shadow: none !important; background-color: rgba(0,0,0,0); border: none; ' } } ] -%}
             {%- set element_list.e = element_list.e + [
                   { 'type':'custom:button-card',
                     'show_name': false,
-                    'entity': speed_select_entity,
+                    'entity': speed_profile_entity,
                     'icon': 'mdi:car-speed-limiter',
+                    'color': 'yellow' if is_state(speed_profile_entity, 'ludicrus') else 'grey',
                     'color_type': 'card',
                     'style': {
                       'top': '93%',
@@ -651,9 +668,7 @@ filter:
                       'target': { 'entity_id': speed_select_entity }
                        },
                     'card_mod': {
-                      'style': 'ha-card { box-shadow: none !important; background-color: rgba(0,0,0,0); border: none; --paper-item-icon-color: ' + 
-                      ('yellow;' if is_state(speed_select_entity, 'ludicrous') else 'grey;')
-                      } } ] -%}
+                      'style': 'ha-card { box-shadow: none !important; background-color: rgba(0,0,0,0); border: none;' } } ] -%}
           {%- endif -%}
           {%- if print_status not in ['offline', 'unavailable', 'unknown', None] -%}
             {%- if (pause_button_entity  != ''  
@@ -667,16 +682,16 @@ filter:
                       'color_type': 'card',
                       'style': {
                         'top': '14%',
-                        'left': '75%'
+                        'left': '72%'
                         },
                       'styles': {
                         'card': [
-                          { 'height': '20px' },
-                          { 'width': '20pX'}
+                          { 'height': '30px' },
+                          { 'width': '30pX'}
                           ],
                         'icon': [
-                          { 'height': '20px' },
-                          { 'width': '20pX'}
+                          { 'height': '30px' },
+                          { 'width': '30pX'}
                           ]
                         },
                       'tap_action': {
@@ -703,16 +718,16 @@ filter:
                       'color_type': 'card',
                       'style': {
                         'top': '14%',
-                        'left': '70%'
+                        'left': '64%'
                         },
                       'styles': {
                         'card': [
-                          { 'height': '20px' },
-                          { 'width': '20pX'}
+                          { 'height': '30px' },
+                          { 'width': '30pX'}
                           ],
                         'icon': [
-                          { 'height': '20px' },
-                          { 'width': '20pX'}
+                          { 'height': '30px' },
+                          { 'width': '30pX'}
                           ]
                         },
                         'tap_action': {
@@ -831,6 +846,18 @@ filter:
                   'color': 'rgba(0,0,0,0)'
                   } }] -%}
           {%- endif -%}
+          {%- if bed_temperature_entity != ''
+                and print_status not in ['offline','unavailable', 'unknown', None] -%}
+            {%- set element_list.e = element_list.e + [{ 
+                'entity': bed_temperature_entity,
+                'type': 'state-badge',
+                'style': {
+                  'top': '78%',
+                  'left': '50%',
+                  'font-size': '0.8em',
+                  'color': 'rgba(0,0,0,0)'
+                  } }] -%}
+          {%- endif -%}
           {%- if wifi_signal_entity != ''
                   and print_status not in ['offline','unavailable', 'unknown', None] -%}
             {%- set wifi_signal = states(wifi_signal_entity) | int(0) -%}
@@ -857,7 +884,7 @@ filter:
             {%- elif device_model in ['A1MINI'] -%}
               {%- set top, left = '29%', '87%' -%}
             {%- else -%}
-              {%- set top, left = '46%', '11.2%' -%}
+              {%- set top, left = '25%', '28%' -%}
             {%- endif -%}
             {%- set element_list.e = element_list.e + [{
                 'type': 'state-icon',
