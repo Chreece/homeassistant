@@ -6,6 +6,8 @@ No need to enter entity - device names.
 ### Power switch also supported. 
 If you have a switch that controls the power of a printer, give it the label name '3d-printer' and another label with the config entry of the printer which is shown in the Integration Bambu Lab (the serial number of the printer).
 
+![X1C + AMS](https://github.com/user-attachments/assets/a0fb80e2-7f34-4791-8991-6da3b9ca3372)
+
 ## Instructions
 Visit: [@Wolfwithsword page](https://wolfwithsword.com/bambulab-home-assistant-dashboard/) (it's all his work, I just made the auto-populated template)
 
