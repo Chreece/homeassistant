@@ -33,7 +33,7 @@ filter:
                                       | list | default([''], true)
                                       | first -%}
         {%- set print_status = states(print_status_entity) -%}
-        {%- set device_model = device_attr(d, 'model') | upper  %}
+        {%- set device_model = device_attr(d, 'model') | upper %}
         {%- if device_model == 'EXTERNAL SPOOL'
                 and print_status not in ['offline','unavailable', 'unknown', None] -%}
           {%- set external_spool_entity = zip_list
@@ -491,6 +491,13 @@ filter:
                                           | list | default([''], true)
                                           | first -%}
           {%- if printer_switch_entity != '' -%}
+            {%- if device_model in ['A1MINI', 'A1'] -%}
+              {%- set top = '57%' -%}
+              {%- set left = '87%' -%}
+            {%- else -%}
+              {%- set top = '14%' -%}
+              {%- set left = '80%' -%}
+            {%- endif -%}
               {%- set dev_name = device_attr(d, 'name_by_user') | default(device_attr(d, 'name'), true) -%}
               {%- set on_translation = [dev_name, "component.switch.entity_component._.name", "component.switch.entity_component._.state.on"] 
                                         | map('ct_translated')
@@ -508,8 +515,8 @@ filter:
                     'show_name': false,
                     'color_type': 'card',
                     'style': {
-                      'top': '14%',
-                      'left': '80%'
+                      'top': top,
+                      'left': left
                       },
                     'styles': {
                       'card': [
@@ -690,6 +697,17 @@ filter:
           {%- if print_status not in ['offline', 'unavailable', 'unknown', None] -%}
             {%- if (pause_button_entity  != ''  
                         or resume_button_entity  != '') -%}
+              {%- if device_model in ['A1MINI', 'A1'] -%}
+                {%- set top_pause = '73%' -%}
+                {%- set left_pause = '87%' -%}
+                {%- set top_stop = '65%' -%}
+                {%- set left_stop = '87%' -%}
+              {%- else -%}
+                {%- set top_pause = '14%' -%}
+                {%- set left_pause = '72%' -%}
+                {%- set top_stop = '14%' -%}
+                {%- set left_stop = '64%' -%}
+              {%- endif -%}
               {%- set element_list.e = element_list.e + [
                     { 'type':'custom:button-card',
                       'show_name': false,
@@ -698,8 +716,8 @@ filter:
                       'color': ("orange" if print_status in ["running", "pause"] else "grey"),
                       'color_type': 'card',
                       'style': {
-                        'top': '14%',
-                        'left': '72%'
+                        'top': top_pause,
+                        'left': left_pause
                         },
                       'styles': {
                         'card': [
@@ -734,8 +752,8 @@ filter:
                       'color': ("red" if print_status in ["running", "pause"] else "grey"),
                       'color_type': 'card',
                       'style': {
-                        'top': '14%',
-                        'left': '64%'
+                        'top': top_stop,
+                        'left': left_stop
                         },
                       'styles': {
                         'card': [
