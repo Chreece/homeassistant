@@ -696,6 +696,7 @@ filter:
                     { 'type':'custom:button-card',
                       'show_name': false,
                       'entity': print_status_entity,
+                      'confirmation': { 'text': state_attr((pause_button_entity if print_status == "running" else resume_button_entity if print_status == "pause" else ""), 'attributes.friendly_name')},
                       'icon': ("mdi:pause" if print_status == "running" else "mdi:play" if print_status == "pause" else "mdi:void"),
                       'color': ("orange" if print_status in ["running", "pause"] else "grey"),
                       'color_type': 'card',
@@ -714,7 +715,7 @@ filter:
                           ]
                         },
                       'tap_action': {
-                      'action': ("call_service" if print_status in ["running", "pause"] else "none"),
+                      'action': ('call_service' if print_status in ["running", "pause"] else 'none'),
                       'service': 'button.press',
                       'service_data': {
                         'entity_id': (pause_button_entity if print_status == "running" else resume_button_entity if print_status == "pause" else ""),
@@ -750,7 +751,7 @@ filter:
                           ]
                         },
                         'tap_action': {
-                        'action': ("call_service" if print_status in ["running", "pause"] else "none"),
+                        'action': ('call_service' if print_status in ["running", "pause"] else 'none'),
                         'service': 'button.press',
                         'service_data': {
                           'entity_id': stop_button_entity,
@@ -869,7 +870,7 @@ filter:
                 and print_status not in ['offline','unavailable', 'unknown', None] -%}
             {%- if device_model in ['A1MINI'] -%}
               {%- set top = '82%' -%}
-              {%- set left = '10%' -%}
+              {%- set left = '72%' -%}
             {%- elif device_model in ['A1'] -%}
               {%- set top = '94%' -%}
               {%- set left = '52%' -%}
