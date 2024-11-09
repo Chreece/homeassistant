@@ -33,8 +33,8 @@ filter:
                                       | list | default([''], true)
                                       | first -%}
         {%- set print_status = states(print_status_entity) -%}
-        {%- set device_model = device_attr(d, 'model') -%}
-        {%- if device_model == 'External Spool'
+        {%- set device_model = device_attr(d, 'model') | upper  %}
+        {%- if device_model == 'EXTERNAL SPOOL'
                 and print_status not in ['offline','unavailable', 'unknown', None] -%}
           {%- set external_spool_entity = zip_list
                                             | selectattr(2, 'eq', d)
@@ -549,6 +549,25 @@ filter:
                         | list | default(['0'], true)
                         | first
                         | int(0) > 1 -%}
+            {%- if device_model in ['A1MINI'] -%}
+              {%- set top = '95%' -%}
+              {%- set left_slow = '32%' -%}
+              {%- set left_normal = '38%' -%}
+              {%- set left_sport = '44%' -%}
+              {%- set left_ludicrus = '50%' -%}
+            {%- elif device_model in ['A1'] -%}
+              {%- set top = '93%' -%}
+              {%- set left_slow = '22%' -%}
+              {%- set left_normal = '28%' -%}
+              {%- set left_sport = '34%' -%}
+              {%- set left_ludicrus = '40%' -%}
+            {%- else -%}
+              {%- set top = '93%' -%}
+              {%- set left_slow = '65%' -%}
+              {%- set left_normal = '71%' -%}
+              {%- set left_sport = '77%' -%}
+              {%- set left_ludicrus = '83%' -%}
+            {%- endif -%}
             {%- set element_list.e = element_list.e + [
                   { 'type':'custom:button-card',
                     'show_name': false,
@@ -557,8 +576,8 @@ filter:
                     'color': 'yellow' if is_state(speed_profile_entity, 'silent') else 'grey',
                     'color_type': 'card',
                     'style': {
-                      'top': '93%',
-                      'left': '65%'
+                      'top': top,
+                      'left': left_slow
                       },
                     'styles': {
                       'card': [
@@ -588,8 +607,8 @@ filter:
                     'color': 'yellow' if is_state(speed_profile_entity, 'standard') else 'grey',
                     'color_type': 'card',
                     'style': {
-                      'top': '93%',
-                      'left': '71%'
+                      'top': top,
+                      'left': left_normal
                       },
                     'styles': {
                       'card': [
@@ -617,8 +636,8 @@ filter:
                     'color': 'yellow' if is_state(speed_profile_entity, 'sport') else 'grey',
                     'color_type': 'card',
                     'style': {
-                      'top': '93%',
-                      'left': '77%'
+                      'top': top,
+                      'left': left_sport
                       },
                     'styles': {
                       'card': [
@@ -646,8 +665,8 @@ filter:
                     'color': 'yellow' if is_state(speed_profile_entity, 'ludicrus') else 'grey',
                     'color_type': 'card',
                     'style': {
-                      'top': '93%',
-                      'left': '83%'
+                      'top': top,
+                      'left': left_ludicrus
                       },
                     'styles': {
                       'card': [
@@ -846,12 +865,22 @@ filter:
           {%- endif -%}
           {%- if bed_temperature_entity != ''
                 and print_status not in ['offline','unavailable', 'unknown', None] -%}
+            {%- if device_model in ['A1MINI'] -%}
+              {%- set top = '92%' -%}
+              {%- set left = '41%' -%}
+            {%- elif device_model in ['A1'] -%}
+              {%- set top = '94%' -%}
+              {%- set left = '52%' -%}
+            {%- else -%}
+              {%- set top = '78%' -%}
+              {%- set left = '50%' -%}
+            {%- endif -%}
             {%- set element_list.e = element_list.e + [{ 
                 'entity': bed_temperature_entity,
                 'type': 'state-badge',
                 'style': {
-                  'top': '78%',
-                  'left': '50%',
+                  'top': top,
+                  'left': left,
                   'font-size': '0.8em',
                   'color': 'rgba(0,0,0,0)'
                   } }] -%}
