@@ -142,9 +142,9 @@ filter:
                  'style': {
                    'top': '28%',
                    'left': '21.4%',
-                    '--paper-item-icon-color': 'var(--tray_1_color)',
+                    '--paper-item-icon-color': ('rgb(255, 255, 255)' if is_state_attr(tray_1_entity, 'color', '#00000000') else state_attr(tray_1_entity, 'color')),
                     'background-color': 'rgba(0,0,0,0.5)',
-                    'box-shadow': '0 0 5px 5px var(--tray_1_bg)',
+                    'box-shadow': '0 0 5px 5px ' + ('rgba(255, 255, 126, 0.5)' if is_state_attr(tray_1_entity, 'active', true) else 'rgba(0,0,0,0.5)'),
                     'border-radius': '50px',
                     '--mdc-icon-size': '2.4em'
                    } 
@@ -188,9 +188,9 @@ filter:
                  'style': {
                    'top': '28%',
                    'left': '39.7%',
-                    '--paper-item-icon-color': 'var(--tray_2_color)',
+                    '--paper-item-icon-color': ('rgb(255, 255, 255)' if is_state_attr(tray_2_entity, 'color', '#00000000') else state_attr(tray_2_entity, 'color')),
                     'background-color': 'rgba(0,0,0,0.5)',
-                    'box-shadow': '0 0 5px 5px var(--tray_2_bg)',
+                    'box-shadow': '0 0 5px 5px ' + ('rgba(255, 255, 126, 0.5)' if is_state_attr(tray_2_entity, 'active', true) else 'rgba(0,0,0,0.5)'),
                     'border-radius': '50px',
                     '--mdc-icon-size': '2.4em'
                    } 
@@ -234,9 +234,9 @@ filter:
                  'style': {
                    'top': '28%',
                    'left': '59.7%',
-                    '--paper-item-icon-color': 'var(--tray_3_color)',
+                    '--paper-item-icon-color': ('rgb(255, 255, 255)' if is_state_attr(tray_3_entity, 'color', '#00000000') else state_attr(tray_3_entity, 'color')),
                     'background-color': 'rgba(0,0,0,0.5)',
-                    'box-shadow': '0 0 5px 5px var(--tray_3_bg)',
+                    'box-shadow': '0 0 5px 5px ' + ('rgba(255, 255, 126, 0.5)' if is_state_attr(tray_3_entity, 'active', true) else 'rgba(0,0,0,0.5)'),
                     'border-radius': '50px',
                     '--mdc-icon-size': '2.4em'
                    } 
@@ -280,9 +280,9 @@ filter:
                  'style': {
                    'top': '28%',
                    'left': '79.6%',
-                    '--paper-item-icon-color': 'var(--tray_4_color)',
+                    '--paper-item-icon-color': ('rgb(255, 255, 255)' if is_state_attr(tray_4_entity, 'color', '#00000000') else state_attr(tray_4_entity, 'color')),
                     'background-color': 'rgba(0,0,0,0.5)',
-                    'box-shadow': '0 0 5px 5px var(--tray_4_bg)',
+                    'box-shadow': '0 0 5px 5px ' + ('rgba(255, 255, 126, 0.5)' if is_state_attr(tray_4_entity, 'active', true) else 'rgba(0,0,0,0.5)'),
                     'border-radius': '50px',
                     '--mdc-icon-size': '2.4em'
                    } 
@@ -329,36 +329,23 @@ filter:
                                       | first -%}
           {%- if humidity_entity != '' -%}
             {%- set element_list.e = element_list.e + [
-              { 'entities': [humidity_entity],
-                'type': 'custom:config-template-card',
+              { 'type': 'state-icon',
+                'entity': humidity_entity,
+                'icon:': 'fapro:humidity-level-dark-' + states(humidity_entity) + '#fullcolor',
                 'style': {
                   'top': '38.5%',
                   'left': '92.5%',
                   'background-color': '#1c1c1c',
                   'border-radius': '50px',
-                  'border': '0.12em solid var(--humidity-border-color)',
+                  'border': '0.12em solid ' + ( 'rgba(255, 255, 126, 0.5)' if states(humidity_entity) | int(0) > 3 else 'rgba(228, 127, 97, 1.0)' if states(humidity_entity) | int(0) > 1 else 'rgba(194, 74, 72, 1.0)'),
                   '--mdc-icon-size': '2.05em'
-                   },   
-                'element': {
-                  'type': 'state-icon',
-                  'entity': humidity_entity,
-                  'icon:': 'fapro:humidity-level-dark-' + states(humidity_entity)
-                }            
+                   }           
               } ] -%}
           {%- endif -%}
           {{- { 'type': 'picture-elements',
                'image': '/local/media/bambuprinter/AMS_2.png',
                'card_mod': {
-                  'style': 'ha-card { background: none !important; border: none !important; box-shadow: none !important; --humidity-border-color: -' + 
-                  ( 'rgba(255, 255, 126, 0.5);' if states(humidity_entity) | int(0) > 3 else 'rgba(228,127,97,1.0);' if states(humidity_entity) | int(0) > 1 else 'rgba(194,74,72,1.0);' ) + 
-                  ' --tray_1_color: ' + ('rgb(255, 255, 255)' if is_state_attr(tray_1_entity, 'color', '#00000000') else state_attr(tray_1_entity, 'color')) + 
-                  '; --tray_2_color: ' + ('rgb(255, 255, 255)' if is_state_attr(tray_2_entity, 'color', '#00000000') else state_attr(tray_2_entity, 'color')) + 
-                  '; --tray_3_color: ' + ('rgb(255, 255, 255)' if is_state_attr(tray_3_entity, 'color', '#00000000') else state_attr(tray_3_entity, 'color')) + 
-                  '; --tray_4_color: ' + ('rgb(255, 255, 255)' if is_state_attr(tray_4_entity, 'color', '#00000000') else state_attr(tray_4_entity, 'color')) + 
-                  '; --tray_1_bg: ' + ('rgba(255, 255, 126, 0.5)' if is_state_attr(tray_1_entity, 'active', true) else 'rgba(0,0,0,0.5)') + 
-                  '; --tray_2_bg: ' + ('rgba(255, 255, 126, 0.5)' if is_state_attr(tray_2_entity, 'active', true) else 'rgba(0,0,0,0.5)') + 
-                  '; --tray_3_bg: ' + ('rgba(255, 255, 126, 0.5)' if is_state_attr(tray_3_entity, 'active', true) else 'rgba(0,0,0,0.5)') + 
-                  '; --tray_4_bg: ' + ('rgba(255, 255, 126, 0.5);' if is_state_attr(tray_4_entity, 'active', true) else 'rgba(0,0,0,0.5);') + '}'
+                  'style': 'ha-card { background: none !important; border: none !important; box-shadow: none !important; }'
                 },
               'elements': element_list.e } -}},
         {%- endif -%}
@@ -455,6 +442,7 @@ filter:
                                           | selectattr(2, 'eq', d)
                                           | selectattr(1, 'eq', e)
                                           | selectattr(0, 'search', '_nozzle_temperature')
+                                          | rejectattr(0, 'search', 'target')
                                           | map(attribute=0)
                                           | expand 
                                           | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
@@ -465,6 +453,7 @@ filter:
                                           | selectattr(2, 'eq', d)
                                           | selectattr(1, 'eq', e)
                                           | selectattr(0, 'search', '_chamber_temperature')
+                                          | rejectattr(0, 'search', 'target')
                                           | map(attribute=0)
                                           | expand 
                                           | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
@@ -537,7 +526,7 @@ filter:
                       'action': '[[[ if (entity) return "toggle"; else return "none"; ]]]'
                       },
                     'confirmation': {
-                      'text': (on_translation if printer_switch_entity | map('states') | select('eq', 'off') | list | count > 0 else off_translation)
+                      'text': (on_translation if is_state(printer_switch_entity, 'off') else off_translation)
                       },
                     'state': [
                       { 'value': 'on',
@@ -550,8 +539,17 @@ filter:
                       } ]
                   } ] -%}
           {%- endif -%}
-          {%- if print_status != 'offline'
-                 and speed_select_entity != '' -%}
+          {%- if print_status in ['running', 'pause']
+                 and speed_select_entity != ''
+                 and zip_list
+                        | selectattr(2, 'eq', d)
+                        | selectattr(1, 'eq', e)
+                        | selectattr(0, 'search', '_current_layer')
+                        | map(attribute=0)
+                        | map('states')
+                        | list | default(['0'], true)
+                        | first
+                        | int(0) > 1 -%}
             {%- set element_list.e = element_list.e + [
                   { 'type':'custom:button-card',
                     'show_name': false,
