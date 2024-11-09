@@ -717,7 +717,7 @@ filter:
                       'tap_action': {
                         'action': ('call-service' if print_status in ["running", "pause"] else 'none'),
                         'service': 'button.press',
-                        'entity': (pause_button_entity if print_status == "running" else resume_button_entity if print_status == "pause" else "")
+                        'target': { 'entity_id': (pause_button_entity if print_status == "running" else resume_button_entity if print_status == "pause" else "") }
                         },
                       'card_mod': {
                         'style': 'ha-card { box-shadow: none !important; background-color: rgba(0,0,0,0); border: none; --paper-item-icon-color: ' + 
@@ -751,7 +751,7 @@ filter:
                         'tap_action': {
                           'action': ('call_service' if print_status in ["running", "pause"] else 'none'),
                           'service': 'button.press',
-                          'entity': stop_button_entity
+                          'target': { 'entity_id': stop_button_entity }
                           },
                       'card_mod': {
                         'style': 'ha-card { box-shadow: none !important; background-color: rgba(0,0,0,0); border: none; --paper-item-icon-color: ' + 
