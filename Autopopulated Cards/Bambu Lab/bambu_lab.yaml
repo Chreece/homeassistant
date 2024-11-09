@@ -729,7 +729,7 @@ filter:
               {%- set element_list.e = element_list.e + [
                     { 'type':'custom:button-card',
                       'show_name': false,
-                      'entity': (pause_button_entity if print_status == "running" else resume_button_entity if print_status == "pause" else print_status_entity),
+                      'entity': stop_button_entity,
                       'confirmation': { 'text': state_attr(stop_button_entity, 'friendly_name')},
                       'icon': ("mdi:cancel" if print_status in ["running", "pause"] else "mdi:void"),
                       'color': ("red" if print_status in ["running", "pause"] else "grey"),
