@@ -49,13 +49,9 @@ filter:
           {%- if external_spool_entity != '' -%}
             {{- { 'type': 'picture-elements',
                   'elements': [
-                    { 'type': 'custom:config-template-card',
-                      'entities': [external_spool_entity],
-                      'element': 
-                        { 'type': 'state-icon',
-                          'entity': external_spool_entity,
-                          'icon': ('fapro:filament-1' if is_state(external_spool_entity, 'empty') else 'mdi:tray')
-                          },
+                    { 'type': 'state-icon',
+                      'entity': external_spool_entity,
+                      'icon': ('fapro:filament-1' if is_state(external_spool_entity, 'empty') else 'mdi:tray'),
                       'style': {
                         'top': '50%',
                         'left': '50%',
@@ -132,12 +128,9 @@ filter:
                                   | first -%}
           {%- if tray_1_entity != '' -%}
             {%- set element_list.e = element_list.e + [
-                {'type': 'custom:config-template-card',
-                 'entities': [tray_1_entity],
-                 'element': { 'type': 'state-icon',
-                              'entity': tray_1_entity,
-                              'icon': 'fapro:filament-1' if states(tray_1_entity) != 'empty' else 'mdi:tray' 
-                            },
+                {'type': 'state-icon',
+                 'entity': tray_1_entity,
+                 'icon': 'fapro:filament-1' if states(tray_1_entity) != 'empty' else 'mdi:tray',
                  'style': {
                    'top': '28%',
                    'left': '21.4%',
@@ -178,12 +171,9 @@ filter:
                                   | first -%}
             {%- if tray_2_entity != '' -%}
             {%- set element_list.e = element_list.e + [
-                {'type': 'custom:config-template-card',
-                 'entities': [tray_2_entity],
-                 'element': { 'type': 'state-icon',
-                              'entity': tray_2_entity,
-                              'icon': 'fapro:filament-1' if states(tray_2_entity) != 'empty' else 'mdi:tray' 
-                            },
+                {'type': 'state-icon',
+                 'entity': tray_2_entity,
+                 'icon': 'fapro:filament-1' if states(tray_2_entity) != 'empty' else 'mdi:tray',
                  'style': {
                    'top': '28%',
                    'left': '39.7%',
@@ -224,12 +214,9 @@ filter:
                                   | first -%}
             {%- if tray_3_entity != '' -%}
             {%- set element_list.e = element_list.e + [
-                {'type': 'custom:config-template-card',
-                 'entities': [tray_3_entity],
-                 'element': { 'type': 'state-icon',
-                              'entity': tray_3_entity,
-                              'icon': 'fapro:filament-1' if states(tray_3_entity) != 'empty' else 'mdi:tray' 
-                            },
+                {'type': 'state-icon',
+                 'entity': tray_3_entity,
+                 'icon': 'fapro:filament-1' if states(tray_3_entity) != 'empty' else 'mdi:tray',
                  'style': {
                    'top': '28%',
                    'left': '59.7%',
@@ -270,12 +257,9 @@ filter:
                                   | first -%}
             {%- if tray_4_entity != '' -%}
             {%- set element_list.e = element_list.e + [
-                {'type': 'custom:config-template-card',
-                 'entities': [tray_4_entity],
-                 'element': { 'type': 'state-icon',
-                              'entity': tray_4_entity,
-                              'icon': 'fapro:filament-1' if states(tray_4_entity) != 'empty' else 'mdi:tray' 
-                            },
+                {'type': 'state-icon',
+                 'entity': tray_4_entity,
+                 'icon': 'fapro:filament-1' if states(tray_4_entity) != 'empty' else 'mdi:tray',
                  'style': {
                    'top': '28%',
                    'left': '79.6%',
@@ -884,8 +868,8 @@ filter:
           {%- if bed_temperature_entity != ''
                 and print_status not in ['offline','unavailable', 'unknown', None] -%}
             {%- if device_model in ['A1MINI'] -%}
-              {%- set top = '92%' -%}
-              {%- set left = '41%' -%}
+              {%- set top = '82%' -%}
+              {%- set left = '10%' -%}
             {%- elif device_model in ['A1'] -%}
               {%- set top = '94%' -%}
               {%- set left = '52%' -%}
@@ -907,13 +891,9 @@ filter:
                   and print_status not in ['offline','unavailable', 'unknown', None] -%}
             {%- set wifi_signal = states(wifi_signal_entity) | int(0) -%}
             {%- set element_list.e = element_list.e + [{
-                'type': 'custom:config-template-card',
-                'entities': [wifi_signal_entity],
-                'element': {
-                  'type': 'state-icon',
-                  'entity': wifi_signal_entity,
-                  'icon': ('mdi:wifi-strength-4' if wifi_signal > -50 else 'mdi:wifi-strength-3' if wifi_signal > -60 else 'mdi:wifi-strength-2' if wifi_signal > -67 else 'mdi:wifi-strength-1' if wifi_signal > -70 else 'mdi:wifi-strength-outline')
-                  },
+                'type': 'state-icon',
+                'entity': wifi_signal_entity,
+                'icon': ('mdi:wifi-strength-4' if wifi_signal > -50 else 'mdi:wifi-strength-3' if wifi_signal > -60 else 'mdi:wifi-strength-2' if wifi_signal > -67 else 'mdi:wifi-strength-1' if wifi_signal > -70 else 'mdi:wifi-strength-outline'),
                 'style': {
                   'left': '58%',
                   'top': '8.5%',
