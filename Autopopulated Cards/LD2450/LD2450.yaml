@@ -148,7 +148,7 @@ filter:
                                                   | select('search', 'r1x0')
                                                   | first  + "\"].state",                          
                               "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r0x1')
+                                                  | select('search', 'r0x0')
                                                   | first  + "\"].state",
                               "$ex hass.states[\"" + device_entities(target)
                                                   | select('search', 'r1x1')
