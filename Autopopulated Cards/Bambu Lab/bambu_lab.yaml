@@ -513,7 +513,7 @@ filter:
                         ]
                     },
                     'tap_action': {
-                      'action': '[[[ if (entity) return "toggle"; else return "none"; ]]]'
+                      'action': 'toggle'
                       },
                     'confirmation': {
                       'text': (on_translation if is_state(printer_switch_entity, 'off') else off_translation)
@@ -715,14 +715,10 @@ filter:
                           ]
                         },
                       'tap_action': {
-                        'action': ('call-service' if print_status in ["running", "pause"] else 'none'),
+                        'action': 'call-service',
                         'service': 'button.press',
                         'target': { 'entity_id': (pause_button_entity if print_status == "running" else resume_button_entity if print_status == "pause" else "") }
-                        },
-                      'card_mod': {
-                        'style': 'ha-card { box-shadow: none !important; background-color: rgba(0,0,0,0); border: none; --paper-item-icon-color: ' + 
-                            ('orange;' if print_status in ['running', 'pause'] else 'grey;')
-                         }
+                        }
                     } ] -%}
             {%- endif -%}
             {%- if stop_button_entity != '' -%}
@@ -749,14 +745,10 @@ filter:
                           ]
                         },
                         'tap_action': {
-                          'action': ('call_service' if print_status in ['running', 'pause'] else 'none'),
+                          'action': 'call-service',
                           'service': 'button.press',
                           'target': { 'entity_id': stop_button_entity }
-                          },
-                      'card_mod': {
-                        'style': 'ha-card { box-shadow: none !important; background-color: rgba(0,0,0,0); border: none; --paper-item-icon-color: ' + 
-                            ('orange;' if print_status in ['running', 'pause'] else 'grey;')
-                         }
+                          }
                     } ] -%}
             {%- endif -%}
           {%- endif -%}
