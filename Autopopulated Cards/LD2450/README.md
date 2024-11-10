@@ -1,5 +1,5 @@
 # LD2450 Dashboard Card
-This yaml code will look into the integration entities of the ESPHOME and grab all the LD2450 entities that use the name pattern given in the [yaml](https://github.com/uncle-yura/esphome-ld2450/blob/master/example_ld2450.yaml) from [@uncle_yura](https://github.com/uncle-yura/esphome-ld2450)s template and represent the coordinates of the targets tracked on a ploty card.
+This yaml code will look into the integration entities of the ESPHOME and grab all the LD2450 entities that use the name pattern given in the [yaml](https://github.com/uncle-yura/esphome-ld2450/blob/master/example_ld2450.yaml) from [@uncle_yura](https://github.com/uncle-yura/esphome-ld2450)s template and represent the coordinates of the targets tracked and the zones used, on a ploty card.
 No need to enter entity - device names.
 
 ![ld2450](https://github.com/user-attachments/assets/48cc68be-840f-4b0e-86e9-757ee1b2ff1c)
