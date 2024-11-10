@@ -1,4 +1,4 @@
-# Bambu Lab Lovelace Card
+# Bambu Lab Dashboard Card
 This yaml code will look into the integration entities of the Bambu Lab and grab all the printers, AMS and External Spool devices.
 Will display a picture entity for each device and show infos accordingly.
 No need to enter entity - device names.
@@ -16,7 +16,7 @@ Please follow the instructions for each one, as some require additional steps to
 
 ### Cards:
 * [card-mod](https://github.com/thomasloven/lovelace-card-mod)
-* [lovelace-layout-card](https://github.com/thomasloven/lovelace-layout-card)
+* [layout-card](https://github.com/thomasloven/lovelace-layout-card)
 * [hui-element](https://github.com/thomasloven/lovelace-hui-element)
 * [button-card](https://github.com/custom-cards/button-card)
 * [mushroom](https://github.com/piitaya/lovelace-mushroom)
@@ -32,4 +32,4 @@ custom_templates:` in your configuration.yaml, needed for the translations)
 
 3) Restart HA
 
-4) Insert the yaml code in a Lovelace Card
+4) Insert the yaml code in a Dashboard Card
