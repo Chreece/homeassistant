@@ -17,4 +17,4 @@ No need to enter entity - device names.
 * [ploty-graph](https://github.com/dbuezas/lovelace-plotly-graph-card)
 
 
-3) Insert the yaml code in a Lovelace Card
+3) Insert the yaml code in a Dashboard Card
