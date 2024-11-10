@@ -9,7 +9,7 @@ filter:
   template: >-
     {%- for target in
     integration_entities('esphome')
-                        | select('search', 'p0x|ld2450_target_1_x_position')
+                        | select('search', 'p0x')
                         | expand
                         | rejectattr('state', 'in', ['unavailable', None])
                         | map(attribute='entity_id')
