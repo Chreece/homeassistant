@@ -773,6 +773,7 @@ filter:
             {%- set element_list.e = element_list.e + [{ 
                 'type': 'custom:hui-element',
                 'card_type': 'picture-entity',
+                'camera_view': 'live',
                 'show_name': false,
                 'show_state': false,
                 'entity': (camera_entity if camera_entity != '' else image_entity),
