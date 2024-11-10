@@ -14,18 +14,18 @@ Visit: [@Wolfwithsword page](https://wolfwithsword.com/bambulab-home-assistant-d
 1) Download the necessary cards & integrations from HACS (don't worry, they are many but you will definetely need them again in the future...):
 Please follow the instructions for each one, as some require additional steps to install (FontAwesome)
 
-### Cards:
-* [card-mod](https://github.com/thomasloven/lovelace-card-mod)
-* [layout-card](https://github.com/thomasloven/lovelace-layout-card)
-* [hui-element](https://github.com/thomasloven/lovelace-hui-element)
-* [button-card](https://github.com/custom-cards/button-card)
-* [mushroom](https://github.com/piitaya/lovelace-mushroom)
-* [custom-ui](https://github.com/Mariusthvdb/custom-ui)
-* [auto-entities](https://github.com/thomasloven/lovelace-auto-entities)
+ ### Cards:
+ * [card-mod](https://github.com/thomasloven/lovelace-card-mod)
+ * [layout-card](https://github.com/thomasloven/lovelace-layout-card)
+ * [hui-element](https://github.com/thomasloven/lovelace-hui-element)
+ * [button-card](https://github.com/custom-cards/button-card)
+ * [mushroom](https://github.com/piitaya/lovelace-mushroom)
+ * [custom-ui](https://github.com/Mariusthvdb/custom-ui)
+ * [auto-entities](https://github.com/thomasloven/lovelace-auto-entities)
 
-### Integrations:
-* [FontAwesome](https://github.com/thomasloven/hass-fontawesome) (after installing via HACS, you need to add it again in Devices & Services)
-* [Custom Templates](https://github.com/PiotrMachowski/Home-Assistant-custom-components-Custom-Templates) (add: `
+ ### Integrations:
+ * [FontAwesome](https://github.com/thomasloven/hass-fontawesome) (after installing via HACS, you need to add it again in Devices & Services)
+ * [Custom Templates](https://github.com/PiotrMachowski/Home-Assistant-custom-components-Custom-Templates) (add: `
 custom_templates:` in your configuration.yaml, needed for the translations)
  
 2) Download & extract the file [media](https://nightly.link/WolfwithSword/Bambu-HomeAssistant-Flows/workflows/media_archive/main/bambu-ha-media-files.zip) to your /config
