@@ -731,8 +731,8 @@ filter:
                       'show_name': false,
                       'entity': stop_button_entity,
                       'confirmation': { 'text': state_attr(stop_button_entity, 'friendly_name')},
-                      'icon': ("mdi:cancel" if print_status in ["running", "pause"] else "mdi:void"),
-                      'color': ("red" if print_status in ["running", "pause"] else "grey"),
+                      'icon': 'mdi:cancel',
+                      'color': 'red',
                       'color_type': 'card',
                       'style': {
                         'top': top_stop,
@@ -749,7 +749,7 @@ filter:
                           ]
                         },
                         'tap_action': {
-                          'action': ('call_service' if print_status in ["running", "pause"] else 'none'),
+                          'action': ('call_service' if print_status in ['running', 'pause'] else 'none'),
                           'service': 'button.press',
                           'target': { 'entity_id': stop_button_entity }
                           },
@@ -768,7 +768,7 @@ filter:
             {%- elif device_model in ['A1MINI'] -%}
               {%- set top, left, scale = '67%', '42%', '85%' -%}
             {%- else -%}
-              {%- set top, left, scale = '50%', '50%', '120%' -%}
+              {%- set top, left, scale = '46%', '50%', '120%' -%}
             {%- endif -%}
             {%- set element_list.e = element_list.e + [{ 
                 'type': 'custom:hui-element',
