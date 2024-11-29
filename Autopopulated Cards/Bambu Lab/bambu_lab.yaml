@@ -1,5 +1,4 @@
 type: custom:auto-entities
-unique: true
 show_empty: false
 card:
   type: custom:layout-card
@@ -88,38 +87,54 @@ filter:
         {%- endif -%}
         {%- if device_model == 'AMS' -%}
           {%- set element_list = namespace(e=[]) -%}
-          {%- set id_entity = zip_list
+          {%- set humidity_entity = zip_list
                               | selectattr(2, 'eq', d)
                               | selectattr(1, 'eq', e)
-                              | selectattr(0, 'search', '_ams_id')
+                              | selectattr(0, 'search', '_humidity_index')
                               | map(attribute=0)
                               | expand 
                               | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
                               | map(attribute='entity_id') 
                               | list | default([''], true)
                               | first -%}
-          {%- if id_entity != '' -%}
+          {%- if humidity_entity != '' -%}            
             {%- set element_list.e = element_list.e + [
-                {'type': 'state-label',
-                 'entity': id_entity,
-                 'tap_action': {'action': 'none' },
-                 'style': {
-                   'top': '77%',
-                   'left': '9.6%',
-                   'text-align': 'center',
-                   'font-size': '0.8em',
-                   'background-color': 'rgba(0,0,0,0)',
-                   'box-shadow': '0 0 3px 3px rgba(0, 0, 0, 0)',
-                   'border-radius': '10px',
-                   'pointer-events': 'none',
-                   'color': '#FFFFFF'
-                   } 
-                } ] -%}
+              { 'entity': humidity_entity,
+                'type': 'state-badge',
+                'style': {
+                  'top': '48%',
+                  'left': '92%',
+                  'font-size': '0.75em',
+                  'color': 'rgba(0,0,0,0)'
+                   }
+              } ] -%}
+          {%- endif -%}
+          {%- set temperature_entity = zip_list
+                              | selectattr(2, 'eq', d)
+                              | selectattr(1, 'eq', e)
+                              | selectattr(0, 'search', '_temperature')
+                              | map(attribute=0)
+                              | expand 
+                              | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
+                              | map(attribute='entity_id') 
+                              | list | default([''], true)
+                              | first -%}
+          {%- if temperature_entity != '' -%}            
+            {%- set element_list.e = element_list.e + [
+              { 'entity': temperature_entity,
+                'type': 'state-badge',
+                'style': {
+                  'top': '55%',
+                  'left': '50%',
+                  'font-size': '0.75em',
+                  'color': 'rgba(0,0,0,0)'
+                   }
+              } ] -%}
           {%- endif -%}
           {%- set tray_1_entity = zip_list
                                   | selectattr(2, 'eq', d)
                                   | selectattr(1, 'eq', e)
-                                  | selectattr(0, 'search', '_ams_tray_1')
+                                  | selectattr(0, 'search', '_tray_1')
                                   | map(attribute=0)
                                   | expand 
                                   | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
@@ -162,7 +177,7 @@ filter:
           {%- set tray_2_entity = zip_list
                                   | selectattr(2, 'eq', d)
                                   | selectattr(1, 'eq', e)
-                                  | selectattr(0, 'search', '_ams_tray_2')
+                                  | selectattr(0, 'search', '_tray_2')
                                   | map(attribute=0)
                                   | expand 
                                   | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
@@ -205,7 +220,7 @@ filter:
           {%- set tray_3_entity = zip_list
                                   | selectattr(2, 'eq', d)
                                   | selectattr(1, 'eq', e)
-                                  | selectattr(0, 'search', '_ams_tray_3')
+                                  | selectattr(0, 'search', '_tray_3')
                                   | map(attribute=0)
                                   | expand 
                                   | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
@@ -248,7 +263,7 @@ filter:
           {%- set tray_4_entity = zip_list
                                   | selectattr(2, 'eq', d)
                                   | selectattr(1, 'eq', e)
-                                  | selectattr(0, 'search', '_ams_tray_4')
+                                  | selectattr(0, 'search', '_tray_4')
                                   | map(attribute=0)
                                   | expand 
                                   | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
