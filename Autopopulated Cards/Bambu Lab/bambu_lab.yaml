@@ -1,4 +1,5 @@
 type: custom:auto-entities
+unique: true
 show_empty: false
 card:
   type: custom:layout-card
@@ -87,50 +88,6 @@ filter:
         {%- endif -%}
         {%- if device_model == 'AMS' -%}
           {%- set element_list = namespace(e=[]) -%}
-          {%- set humidity_entity = zip_list
-                              | selectattr(2, 'eq', d)
-                              | selectattr(1, 'eq', e)
-                              | selectattr(0, 'search', '_humidity_index')
-                              | map(attribute=0)
-                              | expand 
-                              | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
-                              | map(attribute='entity_id') 
-                              | list | default([''], true)
-                              | first -%}
-          {%- if humidity_entity != '' -%}            
-            {%- set element_list.e = element_list.e + [
-              { 'entity': humidity_entity,
-                'type': 'state-badge',
-                'style': {
-                  'top': '48%',
-                  'left': '92%',
-                  'font-size': '0.75em',
-                  'color': 'rgba(0,0,0,0)'
-                   }
-              } ] -%}
-          {%- endif -%}
-          {%- set temperature_entity = zip_list
-                              | selectattr(2, 'eq', d)
-                              | selectattr(1, 'eq', e)
-                              | selectattr(0, 'search', '_temperature')
-                              | map(attribute=0)
-                              | expand 
-                              | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
-                              | map(attribute='entity_id') 
-                              | list | default([''], true)
-                              | first -%}
-          {%- if temperature_entity != '' -%}            
-            {%- set element_list.e = element_list.e + [
-              { 'entity': temperature_entity,
-                'type': 'state-badge',
-                'style': {
-                  'top': '55%',
-                  'left': '50%',
-                  'font-size': '0.75em',
-                  'color': 'rgba(0,0,0,0)'
-                   }
-              } ] -%}
-          {%- endif -%}
           {%- set tray_1_entity = zip_list
                                   | selectattr(2, 'eq', d)
                                   | selectattr(1, 'eq', e)
@@ -301,7 +258,7 @@ filter:
                    'pointer-events': 'none',
                    'color': '#FFFFFF',
                    } 
-                } ] -%}
+                 } ] -%}
           {%- endif -%}        
           {%- if print_status_entity  != '' -%}
             {%- set element_list.e = element_list.e + [
@@ -318,7 +275,7 @@ filter:
           {%- set humidity_entity = zip_list
                                       | selectattr(2, 'eq', d)
                                       | selectattr(1, 'eq', e)
-                                      | selectattr(0, 'search', '_ams_humidity_index')
+                                      | selectattr(0, 'search', '_humidity_index')
                                       | map(attribute=0)
                                       | expand 
                                       | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
@@ -327,19 +284,41 @@ filter:
                                       | first -%}
           {%- if humidity_entity != '' -%}
             {%- set element_list.e = element_list.e + [
-              { 'type': 'state-icon',
-                'entity': humidity_entity,
-                'icon:': 'fapro:humidity-level-dark-' + states(humidity_entity) + '#fullcolor',
-                'style': {
+              {  'type': 'state-icon',
+                 'entity': humidity_entity,
+                 'icon': 'fapro:humidity-level-dark-' + states(humidity_entity) + '#fullcolor',
+                 'style': {
                   'top': '38.5%',
                   'left': '92.5%',
-                  'background-color': '#1c1c1c',
-                  'border-radius': '50px',
-                  'border': '0.12em solid ' + ( 'rgba(255, 255, 126, 0.5)' if states(humidity_entity) | int(0) > 3 else 'rgba(228, 127, 97, 1.0)' if states(humidity_entity) | int(0) > 1 else 'rgba(194, 74, 72, 1.0)'),
-                  '--mdc-icon-size': '2.05em'
-                   }           
-              } ] -%}
+                    '--paper-item-icon-color': 'rgb(255, 255, 255)',
+                    'background-color': 'rgba(0,0,0,0.5)',
+                    'border-radius': '50px',
+                    '--mdc-icon-size': '2.4em'
+                   }
+               } ] -%}
           {%- endif -%}
+          {%- set temperature_entity = zip_list
+                              | selectattr(2, 'eq', d)
+                              | selectattr(1, 'eq', e)
+                              | selectattr(0, 'search', '_temperature')
+                              | map(attribute=0)
+                              | expand 
+                              | rejectattr('state', 'in', ['unavailable', 'unknown', None]) 
+                              | map(attribute='entity_id') 
+                              | list | default([''], true)
+                              | first -%}
+          {%- if temperature_entity != '' -%}            
+            {%- set element_list.e = element_list.e + [
+              { 'entity': temperature_entity,
+                'type': 'state-badge',
+                'style': {
+                  'top': '55%',
+                  'left': '50%',
+                  'font-size': '0.75em',
+                  'color': 'rgba(0,0,0,0)'
+                   }
+              } ] -%}
+          {%- endif -%}          
           {{- { 'type': 'picture-elements',
                'image': '/local/media/bambuprinter/AMS_2.png',
                'card_mod': {
