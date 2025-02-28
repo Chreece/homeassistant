@@ -13,7 +13,7 @@ filter:
                         | list -%}
     {%- set zip_list = zip(entities, devices) | list -%}
     {% set unid = devices | unique | list %}
-    {% set zip_dev = zip(unid | map('device_attr', 'name'), unid) | list %}
+    {% set zip_dev = zip(unid | map('device_attr', 'model'), unid) | list %}
     {%- for d in zip_dev | sort(attribute=0, reverse= true) | map(attribute=1) | list -%}
       {%- set print_status_entity = zip_list
                                     | selectattr(1, 'eq', d)
