@@ -13,8 +13,11 @@ filter:
                         | list -%}
     {%- set zip_list = zip(entities, devices) | list -%}
     {%- set unid = devices | unique | list -%}
-    {%- set zip_dev = zip(unid | map('device_attr', 'model'), unid) | list -%}
-    {%- for d in zip_dev | sort(attribute=0) | map(attribute=1) | list -%}
+    {%- set confen = entities 
+                        | map('config_entry_id')
+                        | map('config_entry_attr', 'title') | unique | list -%}
+    {%- set zip_dev = zip(unid | map('device_attr', 'model'), unid, confen) | list | sort(attribute=0) -%}
+    {%- for d in zip_dev | sort(attribute=2) | map(attribute=1) | list -%}
       {%- set print_status_entity = zip_list
                                     | selectattr(1, 'eq', d)
                                     | selectattr(0, 'search', '_print_status')
