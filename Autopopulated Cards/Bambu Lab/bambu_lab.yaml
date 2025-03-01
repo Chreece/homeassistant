@@ -6,18 +6,17 @@ card:
   layout_type: masonry
 card_param: cards
 filter:
-  template: |
+  template: >
     {%- set entities = integration_entities('bambu_lab') -%}
+
     {%- set devices = integration_entities('bambu_lab')
                         | map('device_id')
                         | list -%}
-    {%- set zip_list = zip(entities, devices) | list -%}
-    {%- set unid = devices | unique | list -%}
     {%- set confen = entities 
                         | map('config_entry_id')
-                        | map('config_entry_attr', 'title') | unique | list -%}
-    {%- set zip_dev = zip(unid | map('device_attr', 'model'), unid, confen) | list | sort(attribute=0) -%}
-    {%- for d in zip_dev | sort(attribute=2) | map(attribute=1) | list -%}
+                        | map('config_entry_attr', 'title') | list -%}
+    {%- set zip_list = zip(entities, devices, confen, devices | map('device_attr', 'model')) | list | sort(attribute=3) -%}
+    {%- for d in zip_list | sort(attribute=2) | map(attribute=1) | unique | list -%}
       {%- set print_status_entity = zip_list
                                     | selectattr(1, 'eq', d)
                                     | selectattr(0, 'search', '_print_status')
