@@ -7,17 +7,74 @@ card:
 card_param: cards
 filter:
   template: >-
-    {%- for target in
+    {% from 'rooms.jinja' import room %}    {%- for target in
     integration_entities('esphome')
-                        | select('search', 'p0x')
+                        | select('search', 'p0x|_target_1_x')
                         | expand
                         | rejectattr('state', 'in', ['unavailable', None])
                         | map(attribute='entity_id')
                         | map('device_id')
                         | unique
-                        | list -%}    
+                        | list -%}
+        {%- set component = device_entities(target)
+                              | select('search', '_target_1_x')
+                              | list | count > 0 -%}
+        {%- set target1x = states(device_entities(target)
+                                    | select('search', iif(component,'_target_1_x','p0x'))
+                                    | first) | int(0) -%}
+        {%- set target1y = states(device_entities(target)
+                                    | select('search', iif(component,'_target_1_y','p0y'))
+                                    | first) | int(0) -%}
+        {%- set target2x = states(device_entities(target)
+                                    | select('search', iif(component,'_target_2_x','p1x'))
+                                    | first) | int(0) -%}
+        {%- set target2y = states(device_entities(target)
+                                    | select('search', iif(component,'_target_2_y','p1y'))
+                                    | first) | int(0) -%}
+        {%- set target3x = states(device_entities(target)
+                                    | select('search', iif(component,'_target_3_x','p2x'))
+                                    | first) | int(0) -%}
+        {%- set target3y = states(device_entities(target)
+                                    | select('search', iif(component,'_target_3_y','p2y'))
+                                    | first) | int(0)  -%}
+        {%- set zone1x1 = states(device_entities(target)
+                                    | select('search', iif(component,'_zone_1_x1','r0x0'))
+                                    | first) | int(0)  -%}
+        {%- set zone1x2 = states(device_entities(target)
+                                    | select('search', iif(component,'_zone_1_x2','r0x1'))
+                                    | first) | int(0)  -%}
+        {%- set zone1y1 = states(device_entities(target)
+                                    | select('search', iif(component,'_zone_1_y1','r0y0'))
+                                    | first) | int(0)  -%}
+        {%- set zone1y2 = states(device_entities(target)
+                                    | select('search', iif(component,'_zone_1_y2','r0y1'))
+                                    | first) | int(0)  -%}
+        {%- set zone2x1 = states(device_entities(target)
+                                    | select('search', iif(component,'_zone_2_x1','r1x0'))
+                                    | first) | int(0)  -%}
+        {%- set zone2x2 = states(device_entities(target)
+                                    | select('search', iif(component,'_zone_2_x2','r1x1'))
+                                    | first) | int(0)  -%}
+        {%- set zone2y1 = states(device_entities(target)
+                                    | select('search', iif(component,'_zone_2_y1','r1y0'))
+                                    | first) | int(0)  -%}
+        {%- set zone2y2 = states(device_entities(target)
+                                    | select('search', iif(component,'_zone_2_y2','r1y1'))
+                                    | first) | int(0)  -%}
+        {%- set zone3x1 = states(device_entities(target)
+                                    | select('search', iif(component,'_zone_3_x1','r2x0'))
+                                    | first) | int(0)  -%}
+        {%- set zone3x2 = states(device_entities(target)
+                                    | select('search', iif(component,'_zone_3_x2','r2x1'))
+                                    | first) | int(0)  -%}
+        {%- set zone3y1 = states(device_entities(target)
+                                    | select('search', iif(component,'_zone_3_y1','r2y0'))
+                                    | first) | int(0)  -%}
+        {%- set zone3y2 = states(device_entities(target)
+                                    | select('search', iif(component,'_zone_3_y2','r2y1'))
+                                    | first) | int(0)  -%}
         {{- { 'type': 'custom:plotly-graph',
-              'title': area_name(target) | default(device_attr(target, 'name'), true),
+              'title': iif(area_name(target) != None,room(area_name(target)) | capitalize, device_attr(target, 'name')),
               'hours_to_show': 'current_day',
               'refresh_interval': 1,
               'layout': {
@@ -57,12 +114,8 @@ filter:
                     'shape': 'spline',
                     'width': 5
                   },
-                  'x': [ '$ex hass.states[ "' + device_entities(target)
-                                                  | select('search', 'p0x')
-                                                  | first  + '" ].state' ] ,
-                  'y': [ '$ex hass.states[ "' + device_entities(target)
-                                                  | select('search', 'p0y')
-                                                  | first  + '" ].state' ]
+                  'x': [ iif(component, target1x / 10, target1x) ] ,
+                  'y': [ iif(component, target1y / 10, target1y)]
                 },
                 { 'entity': '',
                   'name': 'Target2',
@@ -73,12 +126,8 @@ filter:
                     'shape': 'spline',
                     'width': 5
                   },
-                  'x': [ "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'p1x')
-                                                  | first  + "\"].state" ] ,
-                  'y': [ "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'p1y')
-                                                  | first  + "\"].state" ]
+                  'x': [ iif(component, target2x / 10, target2x) ] ,
+                  'y': [ iif(component, target2y / 10, target2y)]
                 },
                 { 'entity': '',
                   'name': 'Target3',
@@ -89,12 +138,8 @@ filter:
                     'shape': 'spline',
                     'width': 5
                   },
-                  'x': [ "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'p2x')
-                                                  | first  + "\"].state" ] ,
-                  'y': [ "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'p2y')
-                                                  | first  + "\"].state" ]
+                  'x': [ iif(component, target3x / 10, target3x) ] ,
+                  'y': [ iif(component, target3y / 10, target3y)]
                 },
                 { 'entity': '',
                         'name': 'Zone1',
@@ -105,36 +150,16 @@ filter:
                           'color': 'RGBA(20,200,0,0.2)',
                           'shape': 'line',
                           'width': 2 },
-                        'x': [ "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r0x0')
-                                                  | first  + "\"].state",
-                              "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r0x0')
-                                                  | first  + "\"].state",
-                              "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r0x1')
-                                                  | first  + "\"].state",
-                              "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r0x1')
-                                                  | first  + "\"].state",
-                              "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r0x0')
-                                                  | first  + "\"].state"],
-                        'y': [ "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r0y0')
-                                                  | first  + "\"].state",                          
-                              "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r0y1')
-                                                  | first  + "\"].state",                          
-                              "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r0y1')
-                                                  | first  + "\"].state",                          
-                              "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r0y0')
-                                                  | first  + "\"].state",                          
-                              "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r0y0')
-                                                  | first  + "\"].state" ] },
+                        'x': [ iif(component, zone1x1 / 10, zone1x1),
+                               iif(component, zone1x1 / 10, zone1x1),
+                               iif(component, zone1x2 / 10, zone1x2),
+                               iif(component, zone1x2 / 10, zone1x2),
+                               iif(component, zone1x1 / 10, zone1x1)],
+                        'y': [ iif(component, zone1y1 / 10, zone1y1),                          
+                               iif(component, zone1y2 / 10, zone1y2),                          
+                               iif(component, zone1y2 / 10, zone1y2),                          
+                               iif(component, zone1y1 / 10, zone1y1),                          
+                               iif(component, zone1y1 / 10, zone1y1) ] },
                       { 'entity': '',
                         'name': 'Zone2',
                         'mode': 'lines',
@@ -144,36 +169,16 @@ filter:
                           'color': 'RGBA(200,0,255,0.2)',
                           'shape': 'line',
                           'width': 2 },
-                        'x': [ "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r1x0')
-                                                  | first  + "\"].state",                          
-                              "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r0x0')
-                                                  | first  + "\"].state",
-                              "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r1x1')
-                                                  | first  + "\"].state",
-                              "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r1x1')
-                                                  | first  + "\"].state",
-                              "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r1x0')
-                                                  | first  + "\"].state"],
-                        'y': [ "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r1y0')
-                                                  | first  + "\"].state",
-                              "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r1y1')
-                                                  | first  + "\"].state",
-                              "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r1y1')
-                                                  | first  + "\"].state",
-                              "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r1y0')
-                                                  | first  + "\"].state",
-                              "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r1y0')
-                                                  | first  + "\"].state" ] },
+                        'x': [ iif(component, zone2x1 / 10, zone2x1),
+                               iif(component, zone2x1 / 10, zone2x1),
+                               iif(component, zone2x2 / 10, zone2x2),
+                               iif(component, zone2x2 / 10, zone2x2),
+                               iif(component, zone2x1 / 10, zone2x1)],
+                        'y': [ iif(component, zone2y1 / 10, zone2y1),                          
+                               iif(component, zone2y2 / 10, zone2y2),                          
+                               iif(component, zone2y2 / 10, zone2y2),                          
+                               iif(component, zone2y1 / 10, zone2y1),                          
+                               iif(component, zone2y1 / 10, zone2y1) ] },
                       { 'entity': '',
                         'name': 'Zone3',
                         'mode': 'lines',
@@ -183,36 +188,16 @@ filter:
                           'color': 'RGBA(200,120,55,0.2)',
                           'shape': 'line',
                           'width': 2 },
-                        'x': [ "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r2x0')
-                                                  | first  + "\"].state",
-                              "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r2x0')
-                                                  | first  + "\"].state",
-                              "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r2x1')
-                                                  | first  + "\"].state",
-                              "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r2x1')
-                                                  | first  + "\"].state",
-                              "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r2x0')
-                                                  | first  + "\"].state" ],
-                        'y': [ "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r2y0')
-                                                  | first  + "\"].state",
-                              "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r2y1')
-                                                  | first  + "\"].state",
-                              "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r2y1')
-                                                  | first  + "\"].state",
-                              "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r2y0')
-                                                  | first  + "\"].state",
-                              "$ex hass.states[\"" + device_entities(target)
-                                                  | select('search', 'r2y0')
-                                                  | first  + "\"].state"] },
+                        'x': [ iif(component, zone3x1 / 10, zone3x1),
+                               iif(component, zone3x1 / 10, zone3x1),
+                               iif(component, zone3x2 / 10, zone3x2),
+                               iif(component, zone3x2 / 10, zone3x2),
+                               iif(component, zone3x1 / 10, zone3x1)],
+                        'y': [ iif(component, zone3y1 / 10, zone3y1),                          
+                               iif(component, zone3y2 / 10, zone3y2),                          
+                               iif(component, zone3y2 / 10, zone3y2),                          
+                               iif(component, zone3y1 / 10, zone3y1),                          
+                               iif(component, zone3y1 / 10, zone3y1) ] },
                 {
                   'entity': '',
                   'name': 'Coverage',
