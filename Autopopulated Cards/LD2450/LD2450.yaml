@@ -18,6 +18,7 @@ filter:
       {{- { 'type': 'custom:plotly-graph',
             'title': iif(area_name(target) != None,room(area_name(target)) | capitalize, device_attr(target, 'name')),
             'hours_to_show': 'current_day',
+            'refresh_interval': 1,
             'layout': {
               'height': 230,
               'margin': {
