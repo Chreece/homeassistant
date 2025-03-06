@@ -2,7 +2,7 @@
 This yaml code will look into the integration entities of the ESPHOME and grab all the LD2450 entities that use the name pattern from the official ESPHome LD2450 component and represent the coordinates of the targets tracked and the zones used, on a ploty card.
 No need to enter entity - device names.
 
-![ld2450](https://github.com/user-attachments/assets/48cc68be-840f-4b0e-86e9-757ee1b2ff1c)
+![image](https://github.com/user-attachments/assets/6143a333-cff2-4809-ae37-014782741f1d)
 
 
 ## Instructions!
