@@ -7,7 +7,7 @@ No need to enter entity - device names.
 
 ## Instructions!
 
-1) Install the esphome yaml from: [@official repo](https://github.com/esphome/esphome/pull/5674)
+1) Install the esphome yaml from: [official repo](https://github.com/esphome/esphome/pull/5674)
 
 2) Download the necessary cards from HACS following the instruction on each one.
 
