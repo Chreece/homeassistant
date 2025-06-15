@@ -56,7 +56,7 @@ filter:
                       'top': '50%',
                       'left': '50%',
                       'transform': 'translate(-50%, -50%) scale(200%)',
-                      '--paper-item-icon-color': state_attr(external_spool_entity, 'attributes.color') | default('rgba(0,0,0,0.5)', true),
+                      '--card-mod-icon-color': state_attr(external_spool_entity, 'attributes.color') | default('rgba(0,0,0,0.5)', true),
                       'background-color': 'rgba(0,0,0,0.5)',
                       'box-shadow': '0 0 5px 5px ' + ('rgba(255, 255, 126, 0.5)' if is_state_attr(external_spool_entity, 'attributes.active', true) else 'rgba(0,0,0,0.5)'),
                       'border-radius': '50px',
@@ -86,7 +86,7 @@ filter:
               } -}},
         {%- endif -%}
       {%- endif -%}
-      {%- if device_model == 'AMS' -%}
+      {%- if device_model in ['AMS', 'AMS 2 PRO'] -%}
         {%- set element_list = namespace(e=[]) -%}
         {%- set tray_1_entity = zip_list
                                 | selectattr(1, 'eq', d)
@@ -105,7 +105,7 @@ filter:
                'style': {
                  'top': '28%',
                  'left': '21.4%',
-                  '--paper-item-icon-color': ('rgb(255, 255, 255)' if is_state_attr(tray_1_entity, 'color', '#00000000') else state_attr(tray_1_entity, 'color')),
+                  '--card-mod-icon-color': ('rgb(255, 255, 255)' if is_state_attr(tray_1_entity, 'color', '#00000000') else state_attr(tray_1_entity, 'color')),
                   'background-color': 'rgba(0,0,0,0.5)',
                   'box-shadow': '0 0 5px 5px ' + ('rgba(255, 255, 126, 0.5)' if is_state_attr(tray_1_entity, 'active', true) else 'rgba(0,0,0,0.5)'),
                   'border-radius': '50px',
@@ -147,7 +147,7 @@ filter:
                'style': {
                  'top': '28%',
                  'left': '39.7%',
-                  '--paper-item-icon-color': ('rgb(255, 255, 255)' if is_state_attr(tray_2_entity, 'color', '#00000000') else state_attr(tray_2_entity, 'color')),
+                  '--card-mod-icon-color': ('rgb(255, 255, 255)' if is_state_attr(tray_2_entity, 'color', '#00000000') else state_attr(tray_2_entity, 'color')),
                   'background-color': 'rgba(0,0,0,0.5)',
                   'box-shadow': '0 0 5px 5px ' + ('rgba(255, 255, 126, 0.5)' if is_state_attr(tray_2_entity, 'active', true) else 'rgba(0,0,0,0.5)'),
                   'border-radius': '50px',
@@ -189,7 +189,7 @@ filter:
                'style': {
                  'top': '28%',
                  'left': '59.7%',
-                  '--paper-item-icon-color': ('rgb(255, 255, 255)' if is_state_attr(tray_3_entity, 'color', '#00000000') else state_attr(tray_3_entity, 'color')),
+                  '--card-mod-icon-color': ('rgb(255, 255, 255)' if is_state_attr(tray_3_entity, 'color', '#00000000') else state_attr(tray_3_entity, 'color')),
                   'background-color': 'rgba(0,0,0,0.5)',
                   'box-shadow': '0 0 5px 5px ' + ('rgba(255, 255, 126, 0.5)' if is_state_attr(tray_3_entity, 'active', true) else 'rgba(0,0,0,0.5)'),
                   'border-radius': '50px',
@@ -231,7 +231,7 @@ filter:
                'style': {
                  'top': '28%',
                  'left': '79.6%',
-                  '--paper-item-icon-color': ('rgb(255, 255, 255)' if is_state_attr(tray_4_entity, 'color', '#00000000') else state_attr(tray_4_entity, 'color')),
+                  '--card-mod-icon-color': ('rgb(255, 255, 255)' if is_state_attr(tray_4_entity, 'color', '#00000000') else state_attr(tray_4_entity, 'color')),
                   'background-color': 'rgba(0,0,0,0.5)',
                   'box-shadow': '0 0 5px 5px ' + ('rgba(255, 255, 126, 0.5)' if is_state_attr(tray_4_entity, 'active', true) else 'rgba(0,0,0,0.5)'),
                   'border-radius': '50px',
@@ -285,7 +285,7 @@ filter:
                'style': {
                 'top': '38.5%',
                 'left': '92.5%',
-                  '--paper-item-icon-color': 'rgb(255, 255, 255)',
+                  '--card-mod-icon-color': 'rgb(255, 255, 255)',
                   'background-color': 'rgba(0,0,0,0.5)',
                   'border-radius': '50px',
                   '--mdc-icon-size': '2.4em'
@@ -895,7 +895,7 @@ filter:
                 'top': '8.5%',
                 'font-size': '0.8em',
                 'color': 'rgba(0,0,0,0)',
-                '--paper-item-icon-color': ('green' if wifi_signal > -50 else 'yellow' if wifi_signal > -60 else 'orange' if wifi_signal > -67 else 'red' if wifi_signal > -70 else 'red')
+                '--card-mod-icon-color': ('green' if wifi_signal > -50 else 'yellow' if wifi_signal > -60 else 'orange' if wifi_signal > -67 else 'red' if wifi_signal > -70 else 'red')
                 } } ] -%}
         {%- endif -%}
         {%- if chamber_light_entity != ''
