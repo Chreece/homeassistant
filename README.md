@@ -7,8 +7,6 @@
 
 # Welcome to my Home Assistant - related stuff
 
-💙 **Enjoying this hobby project? [Send a voluntary thank-you via Ko-fi](https://ko-fi.com/chreece).**
-
 
 ## Auto populated cards
 Here you can find some cards that will automatically pull the devices - entities that are supported.
